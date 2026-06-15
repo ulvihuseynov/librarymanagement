@@ -24,6 +24,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateResourceException(DuplicateResourceException ex){
+
+        return ResponseEntity.status(HttpStatus.CONFLICT.value())
+                .body(ApiResponse.error(ex.getMessage()));
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneralException(Exception ex){
 
