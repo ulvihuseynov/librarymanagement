@@ -48,19 +48,18 @@ public class BookController {
 
 
     @GetMapping("/search/title")
-    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByTitle(@RequestParam(required = false, defaultValue = "java") String title) {
+    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByTitle(@RequestParam String title) {
 
         List<BookResponse> bookResponse = bookService.getBookByTitle(title);
 
-        return new ResponseEntity<>(ApiResponse.success("The book was delivered successfully.", bookResponse), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success("The books were delivered successfully.", bookResponse), HttpStatus.OK);
     }
-
     @GetMapping("/search/isbn")
-    public ResponseEntity<ApiResponse<BookResponse>> getBookByIsbn(@RequestParam(required = false, defaultValue = "1234") String isbn) {
+    public ResponseEntity<ApiResponse<BookResponse>> getBookByIsbn(@RequestParam String isbn) {
 
         BookResponse bookResponse = bookService.getBookByIsbn(isbn);
 
-        return new ResponseEntity<>(ApiResponse.success("The book was delivered successfully.", bookResponse), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.success("The books were delivered successfully.", bookResponse), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

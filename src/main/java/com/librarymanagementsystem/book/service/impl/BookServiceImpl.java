@@ -63,6 +63,7 @@ public class BookServiceImpl implements BookService {
         // borrowing olanda yoxlama olacaq
 
         bookFromDb.setAvailableCopies(bookUpdateRequest.getTotalCopies());
+        bookFromDb.setTotalCopies(bookUpdateRequest.getTotalCopies());
         return bookMapper.toResponse(bookRepository.save(bookFromDb));
     }
 
