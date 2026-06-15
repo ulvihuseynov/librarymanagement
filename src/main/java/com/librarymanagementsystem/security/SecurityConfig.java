@@ -4,6 +4,7 @@ package com.librarymanagementsystem.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,6 +37,12 @@ public class SecurityConfig {
                               .authenticationEntryPoint(authenticationEntryPoint))
               .authorizeHttpRequests(request->
                         request.requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers(HttpMethod.POST,"/api/books/**").hasAnyAuthority("ROLE_ADMIN","ROLE_LIBRARIAN")
+                                .requestMatchers(HttpMethod.PUT,"/api/books/**").hasAnyAuthority("ROLE_ADMIN","ROLE_LIBRARIAN")
+                                .requestMatchers(HttpMethod.DELETE,"/api/books/**").hasAnyAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/books/**").authenticated()
+
+
                                 .anyRequest().authenticated())
               .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

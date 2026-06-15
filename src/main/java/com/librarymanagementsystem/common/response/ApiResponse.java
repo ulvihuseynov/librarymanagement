@@ -27,7 +27,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, message, null, LocalDateTime.now());
     }
 
-    public static <T> ApiResponse<T> validateError(T data) {
-        return new ApiResponse<>(false,null, data, LocalDateTime.now());
+    public static <T> ApiResponse<T> validateError(String message ,T data) {
+        return new ApiResponse<>(false,message, data, LocalDateTime.now());
     }
 }

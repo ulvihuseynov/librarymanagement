@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
                 }
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.validateError(error));
+                .body(ApiResponse.validateError("Validation error",error));
     }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handleResourceNotFoundException(ResourceNotFoundException ex){
