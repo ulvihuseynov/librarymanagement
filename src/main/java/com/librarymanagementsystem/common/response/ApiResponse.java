@@ -16,7 +16,7 @@ public class ApiResponse<T> {
     private boolean success;
     private String message;
     private T data;
-    private LocalDateTime timeStamp;
+    private LocalDateTime timestamp;
 
 
     public static <T> ApiResponse<T> success(String message, T data) {
