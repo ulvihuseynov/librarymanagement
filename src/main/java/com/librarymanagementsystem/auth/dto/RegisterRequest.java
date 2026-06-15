@@ -17,11 +17,11 @@ public class RegisterRequest {
     @NotBlank(message = "Username is required")
     private String username;
 
-    @NotBlank(message = "Username is required")
+    @NotBlank(message = "Email is required")
     @Email(message = "Please enter the correct email format")
     private String email;
 
-    @NotBlank(message = "Username is required")
-    @Size(min = 6,max = 12,message = "Password must be 6 and 12 characters")
+    @NotBlank(message = "Password is required")
+    @Size(min = 6,max = 100,message = "Password must be 6 and 100 characters")
     private String password;
 }
