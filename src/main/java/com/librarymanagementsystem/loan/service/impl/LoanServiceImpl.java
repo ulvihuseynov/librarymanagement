@@ -3,6 +3,7 @@ package com.librarymanagementsystem.loan.service.impl;
 import com.librarymanagementsystem.book.entity.Book;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
+import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.loan.LoanMapper;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
@@ -45,6 +46,19 @@ public class LoanServiceImpl implements LoanService {
         Member member = memberRepository.findById(loanCreateRequest.getMemberId())
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + loanCreateRequest.getMemberId()));
 
+
+        boolean isNotAvailable=loanRepository.existsByBookBookIdAndMemberMemberIdAndStatus(
+                loanCreateRequest.getBookId(),loanCreateRequest.getMemberId(),LoanStatus.BORROWED,LoanStatus.OVERDUE);
+
+       boolean memberActiveBookCount=loanRepository.existsByMemberMemberIdAndStatus(loanCreateRequest.getMemberId(),
+               LoanStatus.BORROWED,LoanStatus.OVERDUE);
+
+       if (memberActiveBookCount){
+           throw new BadRequestException("Member cannot borrow more than 3 books at the same time");
+       }
+        if (isNotAvailable){
+            throw new BadRequestException("Member already borrowed this book and has not returned it yet");
+        }
 
         if (member.getStatus()!= MemberStatus.ACTIVE){
             throw new BadRequestException("Member is not active and cannot borrow books");
@@ -119,8 +133,13 @@ public class LoanServiceImpl implements LoanService {
     public LoanResponse updateLoan(LoanUpdateRequest loanUpdateRequest,Long borrowId) {
 
         Loan loanFromDb = getLoan(borrowId);
+
         Book book = loanFromDb.getBook();
 
+
+        if (loanFromDb.getStatus()==LoanStatus.RETURNED){
+            throw new BadRequestException("This book has already been returned");
+        }
 
         loanFromDb.setStatus(LoanStatus.RETURNED);
         loanFromDb.setReturnDate(LocalDate.now());
