@@ -53,10 +53,10 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The member was delivered successfully.",memberResponse));
     }
 
-    @GetMapping("/search/firstname")
-    public ResponseEntity<ApiResponse<List<MemberResponse>>> getMemberByFirstname(@RequestParam String firstname){
+    @GetMapping("/search/name")
+    public ResponseEntity<ApiResponse<List<MemberResponse>>> getMemberByName(@RequestParam String name){
 
-        List<MemberResponse> memberResponse= memberService.getMemberByFirstname(firstname);
+        List<MemberResponse> memberResponse= memberService.getMemberByName(name);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The member was delivered successfully.",memberResponse));
     }

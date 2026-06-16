@@ -1,0 +1,86 @@
+package com.librarymanagementsystem.loan.controller;
+
+import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
+import com.librarymanagementsystem.loan.dto.LoanResponse;
+import com.librarymanagementsystem.loan.dto.LoanUpdateRequest;
+import com.librarymanagementsystem.loan.service.LoanService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/borrows")
+@RequiredArgsConstructor
+public class LoanController {
+
+    private final LoanService loanService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<LoanResponse>> createLoan(@Valid @RequestBody LoanCreateRequest loanCreateRequest) {
+
+
+        LoanResponse loanResponse = loanService.createLoan(loanCreateRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Loan successfully created", loanResponse));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<LoanResponse>>> getLoan() {
+
+
+        List<LoanResponse> loanResponse = loanService.getLoan();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
+    }
+
+    @GetMapping("/{borrowId}")
+    public ResponseEntity<ApiResponse<LoanResponse>> getLoanById(@PathVariable Long borrowId) {
+
+
+        LoanResponse loanResponse = loanService.getLoanById(borrowId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loan was successfully delivered ", loanResponse));
+    }
+
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<ApiResponse<List<LoanResponse>>> getLoanByMemberId(@PathVariable Long memberId) {
+
+
+        List<LoanResponse> loanResponse = loanService.getLoanByMemberId(memberId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
+    }
+
+    @GetMapping("/book/{bookId}")
+    public ResponseEntity<ApiResponse<List<LoanResponse>>> getLoanByBookId(@PathVariable Long bookId) {
+
+
+        List<LoanResponse> loanResponse = loanService.getLoanByBookId(bookId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
+    }
+
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<LoanResponse>>> getLoanActive() {
+
+
+        List<LoanResponse> loanResponse = loanService.getLoanActive();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
+    }
+
+    @PutMapping("/{borrowId}/return")
+    public ResponseEntity<ApiResponse<LoanResponse>> updateLoan(@Valid @RequestBody LoanUpdateRequest loanUpdateRequest,
+                                                                @PathVariable Long borrowId) {
+
+
+        LoanResponse loanResponse = loanService.updateLoan(loanUpdateRequest,borrowId);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Loan successfully created", loanResponse));
+    }
+}

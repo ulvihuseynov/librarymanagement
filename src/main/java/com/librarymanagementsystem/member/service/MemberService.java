@@ -16,7 +16,7 @@ public interface MemberService {
 
     MemberResponse getMemberByEmail(String email);
 
-    List<MemberResponse> getMemberByFirstname(String firstname);
+    List<MemberResponse> getMemberByName(String name);
 
     MemberResponse updateMember(@Valid MemberUpdateRequest memberUpdateRequest, Long id);
 

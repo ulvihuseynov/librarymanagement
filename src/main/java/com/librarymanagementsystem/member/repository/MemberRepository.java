@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member,Long> {
@@ -16,7 +17,9 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
 
     boolean existsByPhoneNumberAndMemberIdNot( String phoneNumber, Long id);
 
-    Member findByEmail(String email);
 
-    List<Member> findByFirstName(String firstname);
+    List<Member> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstname,String lastname);
+
+
+    Optional<Member> findByEmail(String email);
 }

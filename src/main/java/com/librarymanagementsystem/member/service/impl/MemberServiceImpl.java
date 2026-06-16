@@ -62,14 +62,15 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberResponse getMemberByEmail(String email) {
 
-        Member member=memberRepository.findByEmail(email);
+        Member member=memberRepository.findByEmail(email)
+                .orElseThrow(()->new ResourceNotFoundException("Member not found with email "+ email));
         return memberMapper.toResponse(member);
     }
 
     @Override
-    public List<MemberResponse> getMemberByFirstname(String firstname) {
+    public List<MemberResponse> getMemberByName(String name) {
 
-        List<Member> memberList=memberRepository.findByFirstName(firstname);
+        List<Member> memberList=memberRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name,name);
         return memberList.stream().map(memberMapper::toResponse).toList();
     }
 
