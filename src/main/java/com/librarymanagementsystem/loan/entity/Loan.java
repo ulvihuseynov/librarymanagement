@@ -30,10 +30,11 @@ public class Loan extends BaseEntity {
     @Column(nullable = false)
     private LocalDate dueDate;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDate returnDate;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private LoanStatus status;
 
     @ManyToOne

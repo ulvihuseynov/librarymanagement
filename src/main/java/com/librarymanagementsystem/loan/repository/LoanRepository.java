@@ -26,7 +26,7 @@ public interface LoanRepository extends JpaRepository<Loan,Long> {
                                                          @Param("memberId") Long memberId,
                                                          @Param("overdue") LoanStatus overdue, @Param("borrowed") LoanStatus borrowed);
 
-    @Query("select count(l)> 3 from Loan l where l.member.memberId =:memberId  " +
+    @Query("select count(l) >= 3 from Loan l where l.member.memberId =:memberId  " +
             "and " +
             "(l.status = :overdue or l.status=:borrowed)")
     boolean existsByMemberMemberIdAndStatus( @Param("memberId") Long memberId, @Param("borrowed") LoanStatus borrowed,@Param("overdue") LoanStatus overdue);

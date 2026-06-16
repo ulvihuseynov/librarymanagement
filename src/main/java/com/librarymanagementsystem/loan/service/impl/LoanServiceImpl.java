@@ -3,7 +3,6 @@ package com.librarymanagementsystem.loan.service.impl;
 import com.librarymanagementsystem.book.entity.Book;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
-import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.loan.LoanMapper;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -53,9 +50,7 @@ public class LoanServiceImpl implements LoanService {
        boolean memberActiveBookCount=loanRepository.existsByMemberMemberIdAndStatus(loanCreateRequest.getMemberId(),
                LoanStatus.BORROWED,LoanStatus.OVERDUE);
 
-       if (memberActiveBookCount){
-           throw new BadRequestException("Member cannot borrow more than 3 books at the same time");
-       }
+
         if (isNotAvailable){
             throw new BadRequestException("Member already borrowed this book and has not returned it yet");
         }
@@ -68,16 +63,21 @@ public class LoanServiceImpl implements LoanService {
             throw new BadRequestException("Book is not available for borrowing");
         }
 
-        loan.setBook(book);
 
         book.setAvailableCopies(book.getAvailableCopies()-1);
 
         bookRepository.save(book);
 
+        loan.setBook(book);
+
         loan.setBorrowDate(LocalDate.now());
         loan.setDueDate(loan.getBorrowDate().plusDays(14));
 
         loan.setMember(member);
+
+        if (memberActiveBookCount){
+            throw new BadRequestException("Member cannot borrow more than 3 books at the same time");
+        }
         loan.setStatus(LoanStatus.BORROWED);
 
         return loanMapper.toResponse(loanRepository.save(loan));
