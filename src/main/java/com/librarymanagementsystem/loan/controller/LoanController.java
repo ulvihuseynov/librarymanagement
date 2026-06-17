@@ -81,4 +81,13 @@ public class LoanController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Loan successfully returned", loanResponse));
     }
+
+    @PutMapping("/check-overdue")
+    public ResponseEntity<ApiResponse<List<LoanResponse>>> checkOverdue() {
+
+
+        List<LoanResponse> loanResponse = loanService.checkOverdue();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Loan successfully returned", loanResponse));
+    }
 }

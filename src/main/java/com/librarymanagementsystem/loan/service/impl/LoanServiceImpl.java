@@ -4,6 +4,9 @@ import com.librarymanagementsystem.book.entity.Book;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.fine.entity.Fine;
+import com.librarymanagementsystem.fine.entity.FineStatus;
+import com.librarymanagementsystem.fine.repository.FineRepository;
 import com.librarymanagementsystem.loan.LoanMapper;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -27,6 +32,7 @@ public class LoanServiceImpl implements LoanService {
 
     private final LoanRepository loanRepository;
     private final BookRepository bookRepository;
+    private final FineRepository fineRepository;
     private final MemberRepository memberRepository;
     private final LoanMapper loanMapper;
 
@@ -114,9 +120,9 @@ public class LoanServiceImpl implements LoanService {
 
     @Transactional
     @Override
-    public LoanResponse updateLoan(Long borrowId) {
+    public LoanResponse updateLoan(Long loanId) {
 
-        Loan loanFromDb = getLoan(borrowId);
+        Loan loanFromDb = getLoan(loanId);
 
         Book book = loanFromDb.getBook();
 
@@ -132,6 +138,39 @@ public class LoanServiceImpl implements LoanService {
 
         bookRepository.save(book);
         return loanMapper.toResponse(loanRepository.save(loanFromDb));
+    }
+
+    @Transactional
+    @Override
+    public List<LoanResponse> checkOverdue() {
+
+
+      List<Loan> loanListBorrows=  loanRepository.findByStatusBorrows(LoanStatus.BORROWED);
+
+      loanListBorrows.forEach(loan -> {
+          boolean after = loan.getDueDate().isBefore(LocalDate.now());
+          if (after){
+
+              Fine fine=new Fine();
+              Integer between = (int)ChronoUnit.DAYS.between(loan.getDueDate(),LocalDate.now());
+              fine.setDaysLate(between);
+              fine.setAmount(between);
+              fine.setStatus(FineStatus.UNPAID);
+              fine.setCalculatedAt(LocalDate.now());
+              fine.setPaidAt(null);
+
+              loan.setStatus(LoanStatus.OVERDUE);
+
+
+              fine.setLoan(loan);
+              fineRepository.save(fine);
+
+          }
+           loanRepository.save(loan);
+      });
+
+
+      return loanListBorrows.stream().map(loanMapper::toResponse).toList();
     }
 
 
@@ -153,7 +192,7 @@ public class LoanServiceImpl implements LoanService {
 
     private void isNotAvailableValidation(Integer availableCopies) {
 
-        if (availableCopies == 0) {
+        if (availableCopies <= 0) {
             throw new BadRequestException("Book is not available for borrowing");
         }
     }

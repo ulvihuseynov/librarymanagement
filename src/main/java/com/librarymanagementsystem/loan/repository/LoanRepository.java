@@ -2,7 +2,6 @@ package com.librarymanagementsystem.loan.repository;
 
 import com.librarymanagementsystem.loan.entity.Loan;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +29,8 @@ public interface LoanRepository extends JpaRepository<Loan,Long> {
             "and " +
             "(l.status = :overdue or l.status=:borrowed)")
     boolean existsByMemberMemberIdAndStatus( @Param("memberId") Long memberId, @Param("borrowed") LoanStatus borrowed,@Param("overdue") LoanStatus overdue);
+
+
+    @Query("select l from Loan l where l.status= :borrowed")
+    List<Loan> findByStatusBorrows( @Param("borrowed") LoanStatus borrowed);
 }

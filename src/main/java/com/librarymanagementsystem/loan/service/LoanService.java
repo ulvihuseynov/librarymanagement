@@ -2,16 +2,15 @@ package com.librarymanagementsystem.loan.service;
 
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
-import jakarta.validation.Valid;
 
 import java.util.List;
 
 public interface LoanService {
-    LoanResponse createLoan(@Valid LoanCreateRequest loanCreateRequest);
+    LoanResponse createLoan( LoanCreateRequest loanCreateRequest);
 
     List<LoanResponse> getLoan();
 
-    LoanResponse getLoanById(Long borrowId);
+    LoanResponse getLoanById(Long loanId);
 
     List<LoanResponse> getLoanByMemberId(Long memberId);
 
@@ -19,5 +18,7 @@ public interface LoanService {
 
     List<LoanResponse> getLoanActive();
 
-    LoanResponse updateLoan(Long borrowId);
+    LoanResponse updateLoan(Long loanId);
+
+    List<LoanResponse> checkOverdue();
 }
