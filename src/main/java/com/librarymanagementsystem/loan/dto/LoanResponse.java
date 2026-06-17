@@ -1,9 +1,7 @@
 package com.librarymanagementsystem.loan.dto;
 
 
-import com.librarymanagementsystem.book.dto.BookResponse;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
-import com.librarymanagementsystem.member.dto.MemberResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,12 +17,14 @@ public class LoanResponse {
 
 
     private Long loanId;
+    private Long bookId;
+    private Long memberId;
+    private String bookTitle;
+    private String memberFullName;
     private LocalDate borrowDate;
     private LocalDate dueDate;
     private LocalDate returnDate;
     private LoanStatus status;
-    private BookResponse book;
-    private MemberResponse member;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

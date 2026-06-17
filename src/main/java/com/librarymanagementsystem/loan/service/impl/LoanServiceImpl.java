@@ -147,7 +147,7 @@ public class LoanServiceImpl implements LoanService {
         book.setAvailableCopies(book.getAvailableCopies()+1);
 
         bookRepository.save(book);
-        return null;
+        return loanMapper.toResponse(loanRepository.save(loanFromDb));
     }
 
     private Loan getLoan (Long id){
