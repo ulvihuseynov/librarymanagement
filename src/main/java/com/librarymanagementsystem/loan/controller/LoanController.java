@@ -3,7 +3,6 @@ package com.librarymanagementsystem.loan.controller;
 import com.librarymanagementsystem.common.response.ApiResponse;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
-import com.librarymanagementsystem.loan.dto.LoanUpdateRequest;
 import com.librarymanagementsystem.loan.service.LoanService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/borrows")
+@RequestMapping("/api/loans")
 @RequiredArgsConstructor
 public class LoanController {
 
@@ -35,14 +34,14 @@ public class LoanController {
 
         List<LoanResponse> loanResponse = loanService.getLoan();
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
     }
 
-    @GetMapping("/{borrowId}")
-    public ResponseEntity<ApiResponse<LoanResponse>> getLoanById(@PathVariable Long borrowId) {
+    @GetMapping("/{loanId}")
+    public ResponseEntity<ApiResponse<LoanResponse>> getLoanById(@PathVariable Long loanId) {
 
 
-        LoanResponse loanResponse = loanService.getLoanById(borrowId);
+        LoanResponse loanResponse = loanService.getLoanById(loanId);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loan was successfully delivered ", loanResponse));
     }
@@ -74,13 +73,12 @@ public class LoanController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
     }
 
-    @PutMapping("/{borrowId}/return")
-    public ResponseEntity<ApiResponse<LoanResponse>> updateLoan(@Valid @RequestBody LoanUpdateRequest loanUpdateRequest,
-                                                                @PathVariable Long borrowId) {
+    @PutMapping("/{loanId}/return")
+    public ResponseEntity<ApiResponse<LoanResponse>> updateLoan(@PathVariable Long loanId) {
 
 
-        LoanResponse loanResponse = loanService.updateLoan(loanUpdateRequest,borrowId);
+        LoanResponse loanResponse = loanService.updateLoan(loanId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success("Loan successfully created", loanResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Loan successfully returned", loanResponse));
     }
 }

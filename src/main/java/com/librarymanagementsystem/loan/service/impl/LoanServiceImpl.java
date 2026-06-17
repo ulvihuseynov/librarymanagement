@@ -7,7 +7,6 @@ import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.loan.LoanMapper;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
-import com.librarymanagementsystem.loan.dto.LoanUpdateRequest;
 import com.librarymanagementsystem.loan.entity.Loan;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
 import com.librarymanagementsystem.loan.repository.LoanRepository;
@@ -44,27 +43,12 @@ public class LoanServiceImpl implements LoanService {
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + loanCreateRequest.getMemberId()));
 
 
-        boolean isNotAvailable=loanRepository.existsByBookBookIdAndMemberMemberIdAndStatus(
-                loanCreateRequest.getBookId(),loanCreateRequest.getMemberId(),LoanStatus.BORROWED,LoanStatus.OVERDUE);
+        memberIsActiveStatus(member.getStatus());
+        duplicateMemberBook(loanCreateRequest.getBookId(), loanCreateRequest.getMemberId());
+        isNotAvailableValidation(book.getAvailableCopies());
+        memberActiveBookCountLimitValidation(loanCreateRequest.getMemberId());
 
-       boolean memberActiveBookCount=loanRepository.existsByMemberMemberIdAndStatus(loanCreateRequest.getMemberId(),
-               LoanStatus.BORROWED,LoanStatus.OVERDUE);
-
-
-        if (isNotAvailable){
-            throw new BadRequestException("Member already borrowed this book and has not returned it yet");
-        }
-
-        if (member.getStatus()!= MemberStatus.ACTIVE){
-            throw new BadRequestException("Member is not active and cannot borrow books");
-        }
-
-        if (book.getAvailableCopies()==0){
-            throw new BadRequestException("Book is not available for borrowing");
-        }
-
-
-        book.setAvailableCopies(book.getAvailableCopies()-1);
+        book.setAvailableCopies(book.getAvailableCopies() - 1);
 
         bookRepository.save(book);
 
@@ -75,19 +59,18 @@ public class LoanServiceImpl implements LoanService {
 
         loan.setMember(member);
 
-        if (memberActiveBookCount){
-            throw new BadRequestException("Member cannot borrow more than 3 books at the same time");
-        }
+
         loan.setStatus(LoanStatus.BORROWED);
 
         return loanMapper.toResponse(loanRepository.save(loan));
     }
 
+
     @Override
     public List<LoanResponse> getLoan() {
 
         List<Loan> loanList = loanRepository.findAll();
-        return loanList.stream().map( loanMapper::toResponse).toList();
+        return loanList.stream().map(loanMapper::toResponse).toList();
     }
 
     @Override
@@ -100,23 +83,23 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public List<LoanResponse> getLoanByMemberId(Long memberId) {
 
-        Member member = memberRepository.findById(memberId)
+         memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + memberId));
 
-        List<Loan> loanList= loanRepository.findByMemberMemberId(memberId);
-        return loanList.stream().map( loanMapper::toResponse).toList();
+        List<Loan> loanList = loanRepository.findByMemberMemberId(memberId);
+        return loanList.stream().map(loanMapper::toResponse).toList();
 
     }
 
     @Override
     public List<LoanResponse> getLoanByBookId(Long bookId) {
 
-        Book book = bookRepository.findById(bookId)
+         bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + bookId));
 
-        List<Loan> loanList= loanRepository.findByBookBookId(bookId);
+        List<Loan> loanList = loanRepository.findByBookBookId(bookId);
 
-        return loanList.stream().map( loanMapper::toResponse).toList();
+        return loanList.stream().map(loanMapper::toResponse).toList();
 
     }
 
@@ -125,34 +108,69 @@ public class LoanServiceImpl implements LoanService {
 
         LoanStatus borrowed = LoanStatus.BORROWED;
         LoanStatus overdue = LoanStatus.OVERDUE;
-        List<Loan> loanList= loanRepository.findByStatusActive(borrowed,overdue);
-        return loanList.stream().map( loanMapper::toResponse).toList();
+        List<Loan> loanList = loanRepository.findByStatusActive(borrowed, overdue);
+        return loanList.stream().map(loanMapper::toResponse).toList();
     }
 
+    @Transactional
     @Override
-    public LoanResponse updateLoan(LoanUpdateRequest loanUpdateRequest,Long borrowId) {
+    public LoanResponse updateLoan(Long borrowId) {
 
         Loan loanFromDb = getLoan(borrowId);
 
         Book book = loanFromDb.getBook();
 
 
-        if (loanFromDb.getStatus()==LoanStatus.RETURNED){
+        if (loanFromDb.getStatus() == LoanStatus.RETURNED) {
             throw new BadRequestException("This book has already been returned");
         }
 
         loanFromDb.setStatus(LoanStatus.RETURNED);
         loanFromDb.setReturnDate(LocalDate.now());
 
-        book.setAvailableCopies(book.getAvailableCopies()+1);
+        book.setAvailableCopies(book.getAvailableCopies() + 1);
 
         bookRepository.save(book);
         return loanMapper.toResponse(loanRepository.save(loanFromDb));
     }
 
-    private Loan getLoan (Long id){
+
+    private void memberIsActiveStatus(MemberStatus status) {
+
+        if (status != MemberStatus.ACTIVE) {
+            throw new BadRequestException("Member is not active and cannot borrow books");
+        }
+    }
+
+    private void duplicateMemberBook(Long bookId, Long memberId) {
+
+        boolean isNotAvailable = loanRepository.existsByBookBookIdAndMemberMemberIdAndStatus(bookId, memberId, LoanStatus.BORROWED, LoanStatus.OVERDUE);
+
+        if (isNotAvailable) {
+            throw new BadRequestException("Member already borrowed this book and has not returned it yet");
+        }
+    }
+
+    private void isNotAvailableValidation(Integer availableCopies) {
+
+        if (availableCopies == 0) {
+            throw new BadRequestException("Book is not available for borrowing");
+        }
+    }
+
+    private void memberActiveBookCountLimitValidation(Long memberId) {
+
+        boolean memberActiveBookCount = loanRepository.existsByMemberMemberIdAndStatus(memberId,
+                LoanStatus.BORROWED, LoanStatus.OVERDUE);
+
+        if (memberActiveBookCount) {
+            throw new BadRequestException("Member cannot borrow more than 3 books at the same time");
+        }
+    }
+
+    private Loan getLoan(Long id) {
 
         return loanRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Loan not found with ID "+id));
+                .orElseThrow(() -> new ResourceNotFoundException("Loan not found with ID " + id));
     }
 }

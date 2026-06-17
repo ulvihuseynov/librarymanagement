@@ -2,7 +2,6 @@ package com.librarymanagementsystem.loan.service;
 
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
-import com.librarymanagementsystem.loan.dto.LoanUpdateRequest;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -20,5 +19,5 @@ public interface LoanService {
 
     List<LoanResponse> getLoanActive();
 
-    LoanResponse updateLoan(LoanUpdateRequest loanUpdateRequest,Long borrowId);
+    LoanResponse updateLoan(Long borrowId);
 }
