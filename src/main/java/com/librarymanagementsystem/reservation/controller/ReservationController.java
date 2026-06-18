@@ -74,7 +74,7 @@ public class ReservationController {
 
         ReservationResponse reservationResponse= reservationService.reservationCancel(reservationId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservation was successfully delivered",reservationResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservation was successfully cancelled",reservationResponse));
     }
 
     @PutMapping("/check-expired")
@@ -82,7 +82,7 @@ public class ReservationController {
 
        List<ReservationResponse> reservationResponse= reservationService.reservationCheckExpired();
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservation was successfully delivered",reservationResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Expired reservations were successfully updated",reservationResponse));
     }
 }
 

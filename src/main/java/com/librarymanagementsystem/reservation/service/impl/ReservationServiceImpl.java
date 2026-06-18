@@ -9,6 +9,7 @@ import com.librarymanagementsystem.fine.repository.FineRepository;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
 import com.librarymanagementsystem.loan.repository.LoanRepository;
 import com.librarymanagementsystem.member.entity.Member;
+import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
 import com.librarymanagementsystem.reservation.dto.ReservationCreateRequest;
 import com.librarymanagementsystem.reservation.dto.ReservationResponse;
@@ -46,17 +47,20 @@ public class ReservationServiceImpl implements ReservationService {
         Book book = bookRepository.findById(reservationCreateRequest.getBookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + reservationCreateRequest.getBookId()));
 
+        if (member.getStatus() != MemberStatus.ACTIVE) {
+            throw new BadRequestException("Member is not active and cannot reserve books");
+        }
         if (book.getAvailableCopies() > 0) {
             throw new BadRequestException("Book is available. You can borrow it directly.");
         }
 
-        boolean existsReservation = reservationRepository.existsByMemberIdAndStatus(member.getMemberId(), ReservationStatus.PENDING);
+        boolean existsReservation = reservationRepository.existsByMemberIdBookBookIdAndStatus(member.getMemberId(), book.getBookId(), ReservationStatus.PENDING);
 
         if (existsReservation) {
             throw new BadRequestException("Member already has an active reservation for this book.");
         }
 
-        boolean existsMemberBook = loanRepository.existsByMemberMemberIdAndStatusIn(member.getMemberId(), List.of(LoanStatus.BORROWED, LoanStatus.OVERDUE));
+        boolean existsMemberBook = loanRepository.existsByMemberMemberIdAndBookBookIdAndStatusIn(member.getMemberId(), book.getBookId(), List.of(LoanStatus.BORROWED, LoanStatus.OVERDUE));
 
         if (existsMemberBook) {
             throw new BadRequestException("The book is already available to members.");
@@ -79,34 +83,40 @@ public class ReservationServiceImpl implements ReservationService {
     public List<ReservationResponse> getReservationList() {
 
         List<Reservation> reservationList = reservationRepository.findAll();
-        return reservationList.stream().map( reservationMapper::toResponse).toList();
+        return reservationList.stream().map(reservationMapper::toResponse).toList();
     }
 
     @Override
     public ReservationResponse getReservationById(Long reservationId) {
-      Reservation reservation=  getReservation(reservationId);
+        Reservation reservation = getReservation(reservationId);
         return reservationMapper.toResponse(reservation);
     }
 
 
-
     @Override
     public List<ReservationResponse> getReservationMemberId(Long memberId) {
+   memberRepository.findById(memberId)
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + memberId));
+
         List<Reservation> reservationList = reservationRepository.findByMemberMemberId(memberId);
-        return reservationList.stream().map( reservationMapper::toResponse).toList();
+        return reservationList.stream().map(reservationMapper::toResponse).toList();
     }
 
     @Override
     public List<ReservationResponse> getReservationBookId(Long bookId) {
+
+
+        bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + bookId));
         List<Reservation> reservationList = reservationRepository.findByBookBookId(bookId);
-        return reservationList.stream().map( reservationMapper::toResponse).toList();
+        return reservationList.stream().map(reservationMapper::toResponse).toList();
     }
 
     @Override
     public List<ReservationResponse> getReservationPending() {
 
-        List<Reservation> reservationList=reservationRepository.findByStatus(ReservationStatus.PENDING);
-        return reservationList.stream().map( reservationMapper::toResponse).toList();
+        List<Reservation> reservationList = reservationRepository.findByStatus(ReservationStatus.PENDING);
+        return reservationList.stream().map(reservationMapper::toResponse).toList();
 
     }
 
@@ -114,21 +124,22 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationResponse reservationCancel(Long reservationId) {
 
-       Reservation reservationsPending = reservationRepository.findByReservationIdAndStatus(reservationId,ReservationStatus.PENDING)
-               .orElseThrow(()->new ResourceNotFoundException("Reservation not found with ID "+reservationId));
+        Reservation reservationsPending = reservationRepository.findByReservationIdAndStatus(reservationId, ReservationStatus.PENDING)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID " + reservationId));
 
         reservationsPending.setStatus(ReservationStatus.CANCELLED);
 
         return reservationMapper.toResponse(reservationsPending);
     }
 
+    @Transactional
     @Override
     public List<ReservationResponse> reservationCheckExpired() {
 
-      List<Reservation> reservationList= reservationRepository.findByStatusAndExpiryDateBefore(ReservationStatus.PENDING,LocalDate.now());
-       reservationList.forEach(reservation -> {
-           reservation.setStatus(ReservationStatus.PENDING);
-       });
+        List<Reservation> reservationList = reservationRepository.findByStatusAndExpiryDateBefore(ReservationStatus.PENDING, LocalDate.now());
+        reservationList.forEach(reservation -> {
+            reservation.setStatus(ReservationStatus.EXPIRED);
+        });
         return reservationList.stream().map(reservationMapper::toResponse).toList();
     }
 
@@ -136,6 +147,6 @@ public class ReservationServiceImpl implements ReservationService {
     private Reservation getReservation(Long reservationId) {
 
         return reservationRepository.findById(reservationId)
-                .orElseThrow(()->new ResourceNotFoundException("Reservation not found with ID"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID "+reservationId));
     }
 }
