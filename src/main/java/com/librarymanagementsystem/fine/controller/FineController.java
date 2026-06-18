@@ -1,10 +1,8 @@
 package com.librarymanagementsystem.fine.controller;
 
 import com.librarymanagementsystem.common.response.ApiResponse;
-import com.librarymanagementsystem.fine.dto.FineCreateRequest;
 import com.librarymanagementsystem.fine.dto.FineResponse;
 import com.librarymanagementsystem.fine.service.FineService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +23,7 @@ public class FineController {
 
         List<FineResponse> fineResponse= fineService.getFineList();
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("",fineResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fines were successfully delivered",fineResponse));
     }
 
     @GetMapping("/{fineId}")
@@ -33,7 +31,7 @@ public class FineController {
 
         FineResponse fineResponse= fineService.getFineById(fineId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("",fineResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully delivered",fineResponse));
     }
 
     @GetMapping("/member/{memberId}")
@@ -41,7 +39,7 @@ public class FineController {
 
         List<FineResponse> fineResponse= fineService.getFineByMember(memberId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("",fineResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fines were successfully delivered",fineResponse));
     }
 
     @GetMapping("/unPaid")
@@ -49,14 +47,14 @@ public class FineController {
 
         List<FineResponse> fineResponse= fineService.getFineByUnPaid();
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("",fineResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully delivered",fineResponse));
     }
 
-    @PutMapping("/{fineId}/pay}")
+    @PutMapping("/{fineId}/pay")
     public ResponseEntity<ApiResponse<FineResponse>> getFinePaid(@PathVariable Long fineId){
 
-        FineResponse fineResponse= fineService.getFinePaid();
+        FineResponse fineResponse= fineService.getFinePaid(fineId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("",fineResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully updated",fineResponse));
     }
 }

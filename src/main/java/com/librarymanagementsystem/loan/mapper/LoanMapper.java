@@ -1,4 +1,4 @@
-package com.librarymanagementsystem.loan;
+package com.librarymanagementsystem.loan.mapper;
 
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;

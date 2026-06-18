@@ -7,7 +7,7 @@ import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.fine.entity.Fine;
 import com.librarymanagementsystem.fine.entity.FineStatus;
 import com.librarymanagementsystem.fine.repository.FineRepository;
-import com.librarymanagementsystem.loan.LoanMapper;
+import com.librarymanagementsystem.loan.mapper.LoanMapper;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
 import com.librarymanagementsystem.loan.entity.Loan;
@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -61,7 +60,7 @@ public class LoanServiceImpl implements LoanService {
         loan.setBook(book);
 
         loan.setBorrowDate(LocalDate.now());
-        loan.setDueDate(loan.getBorrowDate().plusDays(14));
+        loan.setDueDate(loan.getBorrowDate().plusDays(1));
 
         loan.setMember(member);
 
@@ -145,32 +144,37 @@ public class LoanServiceImpl implements LoanService {
     public List<LoanResponse> checkOverdue() {
 
 
-      List<Loan> loanListBorrows=  loanRepository.findByStatusBorrows(LoanStatus.BORROWED);
+        LocalDate today = LocalDate.now();
 
-      loanListBorrows.forEach(loan -> {
-          boolean after = loan.getDueDate().isBefore(LocalDate.now());
-          if (after){
+        List<Loan> overDueLoans=  loanRepository.findByStatusAndReturnDateIsNullAndDueDateBefore(LoanStatus.BORROWED,today);
 
-              Fine fine=new Fine();
-              Integer between = (int)ChronoUnit.DAYS.between(loan.getDueDate(),LocalDate.now());
-              fine.setDaysLate(between);
-              fine.setAmount(between);
-              fine.setStatus(FineStatus.UNPAID);
-              fine.setCalculatedAt(LocalDate.now());
-              fine.setPaidAt(null);
+        overDueLoans.forEach(loan -> {
 
-              loan.setStatus(LoanStatus.OVERDUE);
+            Integer daysLate = (int)ChronoUnit.DAYS.between(loan.getDueDate(),today);
 
+            loan.setStatus(LoanStatus.OVERDUE);
+
+              Fine fine=fineRepository.findByLoanLoanId(loan.getLoanId())
+                      .orElseGet(Fine::new);
+
+              fine.setDaysLate(daysLate);
+              fine.setAmount(daysLate);
+              fine.setCalculatedAt(today);
+              if (fine.getStatus()==null){
+                  fine.setStatus(FineStatus.UNPAID);
+                  fine.setPaidAt(null);
+
+              }
 
               fine.setLoan(loan);
+
               fineRepository.save(fine);
 
-          }
            loanRepository.save(loan);
       });
 
 
-      return loanListBorrows.stream().map(loanMapper::toResponse).toList();
+      return overDueLoans.stream().map(loanMapper::toResponse).toList();
     }
 
 

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 
 @Setter
 @Getter
@@ -23,6 +25,6 @@ public class FineResponse {
     private Integer amount;
     private Integer daysLate;
     private FineStatus status;
-    private Integer calculatedAt;
+    private LocalDate calculatedAt;
     private Integer paidAt;
 }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -31,6 +32,6 @@ public interface LoanRepository extends JpaRepository<Loan,Long> {
     boolean existsByMemberMemberIdAndStatus( @Param("memberId") Long memberId, @Param("borrowed") LoanStatus borrowed,@Param("overdue") LoanStatus overdue);
 
 
-    @Query("select l from Loan l where l.status= :borrowed")
-    List<Loan> findByStatusBorrows( @Param("borrowed") LoanStatus borrowed);
+
+    List<Loan> findByStatusAndReturnDateIsNullAndDueDateBefore(LoanStatus loanStatus, LocalDate today);
 }
