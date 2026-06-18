@@ -12,10 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation,Long> {
-
-    @Query("select count(r) > 0 from Reservation r where r.member.memberId= :memberId and r.status=:status")
-    boolean existsByMemberIdAndStatus(@Param("memberId") Long memberId, @Param("status")ReservationStatus status);
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     List<Reservation> findByMemberMemberId(Long memberId);
 
@@ -26,7 +23,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
 
     Optional<Reservation> findByReservationIdAndStatus(Long reservationId, ReservationStatus reservationStatus);
 
-    List<Reservation> findByStatusAndExpiryDateBefore(ReservationStatus reservationStatus, LocalDate today);
+    boolean existsByMemberMemberIdAndBookBookIdAndStatus(Long memberId, Long bookId, ReservationStatus reservationStatus);
 
-    boolean existsByMemberIdBookBookIdAndStatus(Long memberId, Long bookId, ReservationStatus reservationStatus);
+    List<Reservation> findByStatusAndExpiryDateLessThanEqual(ReservationStatus reservationStatus, LocalDate now);
 }

@@ -54,7 +54,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Book is available. You can borrow it directly.");
         }
 
-        boolean existsReservation = reservationRepository.existsByMemberIdBookBookIdAndStatus(member.getMemberId(), book.getBookId(), ReservationStatus.PENDING);
+        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatus(member.getMemberId(), book.getBookId(), ReservationStatus.PENDING);
 
         if (existsReservation) {
             throw new BadRequestException("Member already has an active reservation for this book.");
@@ -63,7 +63,7 @@ public class ReservationServiceImpl implements ReservationService {
         boolean existsMemberBook = loanRepository.existsByMemberMemberIdAndBookBookIdAndStatusIn(member.getMemberId(), book.getBookId(), List.of(LoanStatus.BORROWED, LoanStatus.OVERDUE));
 
         if (existsMemberBook) {
-            throw new BadRequestException("The book is already available to members.");
+            throw new BadRequestException( "Member already has an active loan for this book");
         }
 
         boolean memberUnPaid = fineRepository.existsByLoanMemberMemberIdAndStatus(member.getMemberId(), FineStatus.UNPAID);
@@ -136,7 +136,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponse> reservationCheckExpired() {
 
-        List<Reservation> reservationList = reservationRepository.findByStatusAndExpiryDateBefore(ReservationStatus.PENDING, LocalDate.now());
+        List<Reservation> reservationList = reservationRepository.findByStatusAndExpiryDateLessThanEqual(ReservationStatus.PENDING, LocalDate.now());
         reservationList.forEach(reservation -> {
             reservation.setStatus(ReservationStatus.EXPIRED);
         });
