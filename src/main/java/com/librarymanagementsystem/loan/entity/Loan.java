@@ -30,7 +30,6 @@ public class Loan extends BaseEntity {
     @Column(nullable = false)
     private LocalDate dueDate;
 
-    @Column(nullable = true)
     private LocalDate returnDate;
 
     @Column(nullable = false)

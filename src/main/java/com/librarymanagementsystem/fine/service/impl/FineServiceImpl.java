@@ -2,6 +2,7 @@ package com.librarymanagementsystem.fine.service.impl;
 
 import com.librarymanagementsystem.book.entity.Book;
 import com.librarymanagementsystem.book.repository.BookRepository;
+import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.fine.dto.FineResponse;
 import com.librarymanagementsystem.fine.entity.Fine;
@@ -13,7 +14,9 @@ import com.librarymanagementsystem.loan.entity.LoanStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -54,14 +57,17 @@ public class FineServiceImpl implements FineService {
 
     }
 
+    @Transactional
     @Override
     public FineResponse getFinePaid(Long fineId) {
 
         Fine fineFromDb = getFine(fineId);
 
-if (fineFromDb.getStatus()==FineStatus.UNPAID){
-    fineFromDb.setStatus(FineStatus.PAID);
+if (fineFromDb.getStatus()==FineStatus.PAID){
+   throw new BadRequestException("Fine already paid");
 }
+        fineFromDb.setStatus(FineStatus.PAID);
+        fineFromDb.setPaidAt(LocalDate.now());
     return fineMapper.toResponse(fineFromDb);
     }
 

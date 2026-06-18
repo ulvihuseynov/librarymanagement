@@ -26,5 +26,5 @@ public class FineResponse {
     private Integer daysLate;
     private FineStatus status;
     private LocalDate calculatedAt;
-    private Integer paidAt;
+    private LocalDate paidAt;
 }

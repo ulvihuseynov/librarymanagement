@@ -33,5 +33,9 @@ public interface LoanRepository extends JpaRepository<Loan,Long> {
 
 
 
-    List<Loan> findByStatusAndReturnDateIsNullAndDueDateBefore(LoanStatus loanStatus, LocalDate today);
+
+    List<Loan> findByStatusInAndReturnDateIsNullAndDueDateBefore(List<LoanStatus> borrowed, LocalDate today);
+
+
+    Loan findByDueDateBefore(LocalDate returnDate);
 }

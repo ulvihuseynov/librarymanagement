@@ -42,7 +42,6 @@ public class Fine extends BaseEntity {
     @Column(nullable = false)
     private LocalDate calculatedAt;
 
-    @Column(nullable = false)
-    private Integer paidAt;
+    private LocalDate paidAt;
 
 }

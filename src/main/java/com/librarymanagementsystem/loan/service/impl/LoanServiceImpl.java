@@ -131,10 +131,29 @@ public class LoanServiceImpl implements LoanService {
         }
 
         loanFromDb.setStatus(LoanStatus.RETURNED);
+
+
+
+
         loanFromDb.setReturnDate(LocalDate.now());
 
         book.setAvailableCopies(book.getAvailableCopies() + 1);
 
+        Loan lateLoan= loanRepository.findByDueDateBefore(loanFromDb.getReturnDate());
+
+        Integer daysLate = (int)ChronoUnit.DAYS.between(lateLoan.getDueDate(), lateLoan.getReturnDate());
+        Fine fine = fineRepository.findByLoanLoanId(loanId).
+                orElseGet(Fine::new);
+
+        fine.setLoan(lateLoan);
+        fine.setDaysLate(daysLate);
+        fine.setCalculatedAt(LocalDate.now());
+        fine.setAmount(daysLate);
+        if (fine.getStatus()==null){
+            fine.setStatus(FineStatus.UNPAID);
+            fine.setPaidAt(null);
+        }
+        fineRepository.save(fine);
         bookRepository.save(book);
         return loanMapper.toResponse(loanRepository.save(loanFromDb));
     }
@@ -146,7 +165,7 @@ public class LoanServiceImpl implements LoanService {
 
         LocalDate today = LocalDate.now();
 
-        List<Loan> overDueLoans=  loanRepository.findByStatusAndReturnDateIsNullAndDueDateBefore(LoanStatus.BORROWED,today);
+        List<Loan> overDueLoans=  loanRepository.findByStatusInAndReturnDateIsNullAndDueDateBefore(List.of(LoanStatus.BORROWED,LoanStatus.OVERDUE),today);
 
         overDueLoans.forEach(loan -> {
 

@@ -42,7 +42,7 @@ public class FineController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fines were successfully delivered",fineResponse));
     }
 
-    @GetMapping("/unPaid")
+    @GetMapping("/unpaid")
     public ResponseEntity<ApiResponse<List<FineResponse>>> getFineByUnPaid(){
 
         List<FineResponse> fineResponse= fineService.getFineByUnPaid();
@@ -51,7 +51,7 @@ public class FineController {
     }
 
     @PutMapping("/{fineId}/pay")
-    public ResponseEntity<ApiResponse<FineResponse>> getFinePaid(@PathVariable Long fineId){
+    public ResponseEntity<ApiResponse<FineResponse>> payFine(@PathVariable Long fineId){
 
         FineResponse fineResponse= fineService.getFinePaid(fineId);
 
