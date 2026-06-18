@@ -14,5 +14,8 @@ public interface FineRepository extends JpaRepository<Fine,Long> {
 
     List<Fine> findByLoanMemberMemberId(Long memberId);
 
-    List<Fine> findByStatusIn(List<FineStatus> unpaid);
+
+    List<Fine> findByStatus(FineStatus unPaid);
+
+    boolean existsByLoanMemberMemberIdAndStatus(Long memberId, FineStatus fineStatus);
 }

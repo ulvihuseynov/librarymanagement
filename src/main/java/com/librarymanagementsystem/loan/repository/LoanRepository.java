@@ -11,13 +11,13 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface LoanRepository extends JpaRepository<Loan,Long> {
+public interface LoanRepository extends JpaRepository<Loan, Long> {
     List<Loan> findByMemberMemberId(Long memberId);
 
     List<Loan> findByBookBookId(Long bookId);
 
     @Query("select l from Loan l where l.status= :borrowed or l.status = :overdue")
-    List<Loan> findByStatusActive(LoanStatus borrowed,LoanStatus overdue);
+    List<Loan> findByStatusActive(LoanStatus borrowed, LoanStatus overdue);
 
     @Query("select count(l)> 0 from Loan l where l.book.bookId = :bookId and" +
             " l.member.memberId =:memberId  and " +
@@ -29,13 +29,12 @@ public interface LoanRepository extends JpaRepository<Loan,Long> {
     @Query("select count(l) >= 3 from Loan l where l.member.memberId =:memberId  " +
             "and " +
             "(l.status = :overdue or l.status=:borrowed)")
-    boolean existsByMemberMemberIdAndStatus( @Param("memberId") Long memberId, @Param("borrowed") LoanStatus borrowed,@Param("overdue") LoanStatus overdue);
-
-
+    boolean existsByMemberMemberIdAndStatus(@Param("memberId") Long memberId, @Param("borrowed") LoanStatus borrowed, @Param("overdue") LoanStatus overdue);
 
 
     List<Loan> findByStatusInAndReturnDateIsNullAndDueDateBefore(List<LoanStatus> borrowed, LocalDate today);
 
 
-    Loan findByDueDateBefore(LocalDate returnDate);
+
+    boolean existsByMemberMemberIdAndStatusIn(Long memberId, List<LoanStatus> borrowed);
 }

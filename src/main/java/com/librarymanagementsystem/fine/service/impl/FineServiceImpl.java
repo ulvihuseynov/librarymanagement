@@ -50,7 +50,7 @@ public class FineServiceImpl implements FineService {
     @Override
     public List<FineResponse> getFineByUnPaid() {
 
-        List<Fine> fineList = fineRepository.findByStatusIn(List.of(FineStatus.UNPAID));
+        List<Fine> fineList = fineRepository.findByStatus(FineStatus.UNPAID);
         return fineList.stream().map(fineMapper::toResponse).toList();
 
     }
