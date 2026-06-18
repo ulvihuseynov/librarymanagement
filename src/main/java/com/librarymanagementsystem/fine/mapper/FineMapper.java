@@ -12,6 +12,7 @@ import org.mapstruct.ReportingPolicy;
 public interface FineMapper {
 
 
+    @Mapping(target = "loanId",source = "loan.loanId")
     @Mapping(target = "memberId",source = "loan.member.memberId")
     @Mapping(target = "bookId",source = "loan.book.bookId")
     @Mapping(target = "bookTitle",source = "loan.book.title")

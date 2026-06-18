@@ -13,11 +13,11 @@ public interface LoanMapper {
 
     Loan toEntity(LoanCreateRequest loanCreateRequest);
 
+
     @Mapping(target = "bookId",source = "book.bookId")
     @Mapping(target = "bookTitle",source = "book.title")
     @Mapping(target = "memberId",source = "member.memberId")
     @Mapping(target = "memberFullName",source = "loan",qualifiedByName = "mapMemberFullName")
-
     LoanResponse toResponse(Loan loan);
 
     @Named("mapMemberFullName")

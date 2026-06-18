@@ -1,7 +1,6 @@
 package com.librarymanagementsystem.fine.service.impl;
 
-import com.librarymanagementsystem.book.entity.Book;
-import com.librarymanagementsystem.book.repository.BookRepository;
+
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.fine.dto.FineResponse;
@@ -25,7 +24,6 @@ public class FineServiceImpl implements FineService {
 
     private final FineRepository fineRepository;
     private final MemberRepository memberRepository;
-    private final BookRepository bookRepository;
     private final FineMapper fineMapper;
 
     @Override
@@ -44,35 +42,37 @@ public class FineServiceImpl implements FineService {
     public List<FineResponse> getFineByMember(Long memberId) {
 
         memberRepository.findById(memberId)
-                .orElseThrow(()->new ResourceNotFoundException("Member not found with ID "+memberId));
-        List<Fine> fineList=fineRepository.findByLoanMemberMemberId(memberId);
+                .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + memberId));
+        List<Fine> fineList = fineRepository.findByLoanMemberMemberId(memberId);
         return fineList.stream().map(fineMapper::toResponse).toList();
     }
 
     @Override
     public List<FineResponse> getFineByUnPaid() {
 
-        List<Fine> fineList=   fineRepository.findByStatusIn(List.of(FineStatus.UNPAID));
+        List<Fine> fineList = fineRepository.findByStatusIn(List.of(FineStatus.UNPAID));
         return fineList.stream().map(fineMapper::toResponse).toList();
 
     }
 
     @Transactional
     @Override
-    public FineResponse getFinePaid(Long fineId) {
+    public FineResponse payFine(Long fineId) {
 
         Fine fineFromDb = getFine(fineId);
-
-if (fineFromDb.getStatus()==FineStatus.PAID){
-   throw new BadRequestException("Fine already paid");
+if (fineFromDb.getLoan().getStatus()!= LoanStatus.RETURNED){
+    throw new BadRequestException("Fine can be paid only after book is returned");
 }
+        if (fineFromDb.getStatus() == FineStatus.PAID) {
+            throw new BadRequestException("Fine already paid");
+        }
         fineFromDb.setStatus(FineStatus.PAID);
         fineFromDb.setPaidAt(LocalDate.now());
-    return fineMapper.toResponse(fineFromDb);
+        return fineMapper.toResponse(fineFromDb);
     }
 
-    private Fine getFine(Long id){
+    private Fine getFine(Long id) {
         return fineRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Fine not found with ID "+id));
+                .orElseThrow(() -> new ResourceNotFoundException("Fine not found with ID " + id));
     }
 }

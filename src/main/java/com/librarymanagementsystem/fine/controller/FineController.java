@@ -53,7 +53,7 @@ public class FineController {
     @PutMapping("/{fineId}/pay")
     public ResponseEntity<ApiResponse<FineResponse>> payFine(@PathVariable Long fineId){
 
-        FineResponse fineResponse= fineService.getFinePaid(fineId);
+        FineResponse fineResponse= fineService.payFine(fineId);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully updated",fineResponse));
     }
