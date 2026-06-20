@@ -47,7 +47,7 @@ public class LoanServiceImpl implements LoanService {
 
         Loan loan = loanMapper.toEntity(loanCreateRequest);
 
-        Book book = bookRepository.findById(loanCreateRequest.getBookId())
+        Book book = bookRepository.findByIdForUpdate(loanCreateRequest.getBookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + loanCreateRequest.getBookId()));
 
         Member member = memberRepository.findById(loanCreateRequest.getMemberId())

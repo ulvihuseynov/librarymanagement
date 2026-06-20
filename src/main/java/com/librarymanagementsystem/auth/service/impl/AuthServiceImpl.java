@@ -1,8 +1,9 @@
-package com.librarymanagementsystem.auth.service;
+package com.librarymanagementsystem.auth.service.impl;
 
 import com.librarymanagementsystem.auth.dto.JwtResponse;
 import com.librarymanagementsystem.auth.dto.LoginRequest;
 import com.librarymanagementsystem.auth.dto.RegisterRequest;
+import com.librarymanagementsystem.auth.service.AuthService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.common.response.ApiResponse;
