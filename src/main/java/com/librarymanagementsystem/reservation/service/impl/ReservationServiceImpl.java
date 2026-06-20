@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -41,35 +42,20 @@ public class ReservationServiceImpl implements ReservationService {
 
         Reservation reservation = reservationMapper.toEntity(reservationCreateRequest);
 
+
         Member member = memberRepository.findById(reservationCreateRequest.getMemberId())
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + reservationCreateRequest.getMemberId()));
 
         Book book = bookRepository.findById(reservationCreateRequest.getBookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + reservationCreateRequest.getBookId()));
 
-        if (member.getStatus() != MemberStatus.ACTIVE) {
-            throw new BadRequestException("Member is not active and cannot reserve books");
-        }
-        if (book.getAvailableCopies() > 0) {
-            throw new BadRequestException("Book is available. You can borrow it directly.");
-        }
 
-        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatus(member.getMemberId(), book.getBookId(), ReservationStatus.PENDING);
+        isActiveMemberValidation(member.getStatus());
+        bookAvailableValidation(book.getAvailableCopies());
+        existsReservationValidation(member.getMemberId(), book.getBookId());
+        existsMemberBookValidation(member.getMemberId(), book.getBookId());
+        memberUnPaidValidation(member.getMemberId());
 
-        if (existsReservation) {
-            throw new BadRequestException("Member already has an active reservation for this book.");
-        }
-
-        boolean existsMemberBook = loanRepository.existsByMemberMemberIdAndBookBookIdAndStatusIn(member.getMemberId(), book.getBookId(), List.of(LoanStatus.BORROWED, LoanStatus.OVERDUE));
-
-        if (existsMemberBook) {
-            throw new BadRequestException( "Member already has an active loan for this book");
-        }
-
-        boolean memberUnPaid = fineRepository.existsByLoanMemberMemberIdAndStatus(member.getMemberId(), FineStatus.UNPAID);
-        if (memberUnPaid) {
-            throw new BadRequestException("Member has unpaid fines.");
-        }
 
         reservation.setBook(book);
         reservation.setMember(member);
@@ -78,6 +64,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setExpiryDate(reservation.getReservationDate().plusDays(3));
         return reservationMapper.toResponse(reservationRepository.save(reservation));
     }
+
 
     @Override
     public List<ReservationResponse> getReservationList() {
@@ -95,7 +82,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<ReservationResponse> getReservationMemberId(Long memberId) {
-   memberRepository.findById(memberId)
+        memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + memberId));
 
         List<Reservation> reservationList = reservationRepository.findByMemberMemberId(memberId);
@@ -143,10 +130,57 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationList.stream().map(reservationMapper::toResponse).toList();
     }
 
+    @Override
+    public List<ReservationResponse> getReservationPendingQueue() {
+
+     List<Reservation>reservationList=   reservationRepository.findByStatusOrderByReservationDateAscReservationIdAsc(ReservationStatus.PENDING);
+        return reservationList.stream().map(reservationMapper::toResponse).toList();
+
+    }
+
+
+    private void memberUnPaidValidation(Long memberId) {
+
+        boolean memberUnPaid = fineRepository.existsByLoanMemberMemberIdAndStatus(memberId, FineStatus.UNPAID);
+        if (memberUnPaid) {
+            throw new BadRequestException("Member has unpaid fines.");
+        }
+    }
+
+    private void existsMemberBookValidation(Long memberId, Long bookId) {
+        boolean existsMemberBook = loanRepository.existsByMemberMemberIdAndBookBookIdAndStatusIn(memberId, bookId, List.of(LoanStatus.BORROWED, LoanStatus.OVERDUE));
+
+        if (existsMemberBook) {
+            throw new BadRequestException("Member already has an active loan for this book");
+        }
+    }
+
+    private void existsReservationValidation(Long memberId, Long bookId) {
+
+        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatus(memberId, bookId, ReservationStatus.PENDING);
+
+        if (existsReservation) {
+            throw new BadRequestException("Member already has an active reservation for this book.");
+        }
+    }
+
+    private void bookAvailableValidation(Integer availableCopies) {
+
+        if (availableCopies > 0) {
+            throw new BadRequestException("Book is available. You can borrow it directly.");
+        }
+    }
+
+    private void isActiveMemberValidation(MemberStatus memberStatus) {
+
+        if (memberStatus != MemberStatus.ACTIVE) {
+            throw new BadRequestException("Member is not active and cannot reserve books");
+        }
+    }
 
     private Reservation getReservation(Long reservationId) {
 
         return reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID "+reservationId));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found with ID " + reservationId));
     }
 }

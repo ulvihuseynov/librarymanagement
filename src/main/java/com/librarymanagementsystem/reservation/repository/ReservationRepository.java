@@ -26,4 +26,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean existsByMemberMemberIdAndBookBookIdAndStatus(Long memberId, Long bookId, ReservationStatus reservationStatus);
 
     List<Reservation> findByStatusAndExpiryDateLessThanEqual(ReservationStatus reservationStatus, LocalDate now);
+
+
+    Optional<Reservation> findTopByBookBookIdAndStatusOrderByReservationDateAscReservationIdAsc(Long bookId, ReservationStatus reservationStatus);
+
+    List<Reservation> findByBookBookIdAndStatusAndExpiryDateLessThanEqual(Long bookId, ReservationStatus reservationStatus,LocalDate now);
+
+    List<Reservation> findByStatusOrderByReservationDateAscReservationIdAsc(ReservationStatus reservationStatus);
 }

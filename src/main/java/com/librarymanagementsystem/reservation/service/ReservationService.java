@@ -22,4 +22,6 @@ public interface ReservationService {
     ReservationResponse reservationCancel(Long reservationId);
 
     List<ReservationResponse> reservationCheckExpired();
+
+    List<ReservationResponse> getReservationPendingQueue();
 }

@@ -17,6 +17,9 @@ import com.librarymanagementsystem.loan.service.LoanService;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
+import com.librarymanagementsystem.reservation.entity.Reservation;
+import com.librarymanagementsystem.reservation.entity.ReservationStatus;
+import com.librarymanagementsystem.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class LoanServiceImpl implements LoanService {
     private final BookRepository bookRepository;
     private final FineRepository fineRepository;
     private final MemberRepository memberRepository;
+    private final ReservationRepository reservationRepository;
     private final LoanMapper loanMapper;
 
     @Transactional
@@ -47,28 +53,43 @@ public class LoanServiceImpl implements LoanService {
         Member member = memberRepository.findById(loanCreateRequest.getMemberId())
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + loanCreateRequest.getMemberId()));
 
-
+        unPaidFineIsMemberValidation(member.getMemberId());
         memberIsActiveStatus(member.getStatus());
         duplicateMemberBook(loanCreateRequest.getBookId(), loanCreateRequest.getMemberId());
         isNotAvailableValidation(book.getAvailableCopies());
         memberActiveBookCountLimitValidation(loanCreateRequest.getMemberId());
 
+        List<Reservation> expiryReservation = reservationRepository
+                .findByBookBookIdAndStatusAndExpiryDateLessThanEqual(book.getBookId(), ReservationStatus.PENDING,LocalDate.now());
+
+        expiryReservation.forEach(
+                expiryReservationStatus->expiryReservationStatus.setStatus(ReservationStatus.EXPIRED)
+        );
+        Optional<Reservation> activeOldestReservation = reservationRepository.
+                findTopByBookBookIdAndStatusOrderByReservationDateAscReservationIdAsc(book.getBookId(), ReservationStatus.PENDING);
+
+        if (activeOldestReservation.isPresent()) {
+
+            if (!Objects.equals(activeOldestReservation.get().getMember().getMemberId(), member.getMemberId())) {
+                throw new BadRequestException("Another member is first in line to reserve the book.");
+            }
+        }
         book.setAvailableCopies(book.getAvailableCopies() - 1);
 
         bookRepository.save(book);
 
         loan.setBook(book);
-
         loan.setBorrowDate(LocalDate.now());
         loan.setDueDate(loan.getBorrowDate().plusDays(1));
-
         loan.setMember(member);
-
-
         loan.setStatus(LoanStatus.BORROWED);
+
+        activeOldestReservation.ifPresent(reservation -> reservation.setStatus(ReservationStatus.FULFILLED));
 
         return loanMapper.toResponse(loanRepository.save(loan));
     }
+
+
 
 
     @Override
@@ -137,7 +158,6 @@ public class LoanServiceImpl implements LoanService {
         book.setAvailableCopies(book.getAvailableCopies() + 1);
 
 
-
         boolean isBefore = loanFromDb.getDueDate().isBefore(loanFromDb.getReturnDate());
 
         if (isBefore) {
@@ -149,7 +169,7 @@ public class LoanServiceImpl implements LoanService {
             fine.setDaysLate(daysLate);
             fine.setCalculatedAt(LocalDate.now());
             fine.setAmount(daysLate);
-            if (fine.getStatus() == null ) {
+            if (fine.getStatus() == null) {
                 fine.setStatus(FineStatus.UNPAID);
                 fine.setPaidAt(null);
             }
@@ -197,6 +217,11 @@ public class LoanServiceImpl implements LoanService {
         return overDueLoans.stream().map(loanMapper::toResponse).toList();
     }
 
+    private void unPaidFineIsMemberValidation(Long memberId) {
+
+        boolean unPaidFineIsMember=fineRepository.existsByLoanMemberMemberIdAndStatus(memberId,FineStatus.UNPAID);
+
+    }
 
     private void memberIsActiveStatus(MemberStatus status) {
 
