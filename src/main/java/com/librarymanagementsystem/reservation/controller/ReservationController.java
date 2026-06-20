@@ -69,10 +69,10 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservation was successfully delivered",reservationResponse));
     }
 
-    @GetMapping("/pending/queue")
-    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getReservationPendingQueue(){
+    @GetMapping("/pending/queue/{bookId}")
+    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getReservationPendingQueue(@PathVariable Long bookId){
 
-        List<ReservationResponse> reservationResponse= reservationService.getReservationPendingQueue();
+        List<ReservationResponse> reservationResponse= reservationService.getReservationPendingQueue(bookId);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservation was successfully delivered",reservationResponse));
     }

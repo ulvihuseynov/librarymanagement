@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -131,9 +130,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<ReservationResponse> getReservationPendingQueue() {
+    public List<ReservationResponse> getReservationPendingQueue(Long bookId) {
 
-     List<Reservation>reservationList=   reservationRepository.findByStatusOrderByReservationDateAscReservationIdAsc(ReservationStatus.PENDING);
+        bookRepository.findById(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + bookId));
+
+        List<Reservation> reservationList = reservationRepository.findByBookBookIdAndStatusAndExpiryDateBeforeOrderByReservationDateAscReservationIdAsc(bookId, ReservationStatus.PENDING, LocalDate.now());
         return reservationList.stream().map(reservationMapper::toResponse).toList();
 
     }

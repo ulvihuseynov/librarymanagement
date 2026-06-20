@@ -221,6 +221,10 @@ public class LoanServiceImpl implements LoanService {
 
         boolean unPaidFineIsMember=fineRepository.existsByLoanMemberMemberIdAndStatus(memberId,FineStatus.UNPAID);
 
+        if (unPaidFineIsMember){
+            throw new BadRequestException("Member has unpaid fines.");
+        }
+
     }
 
     private void memberIsActiveStatus(MemberStatus status) {

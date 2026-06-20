@@ -30,7 +30,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     Optional<Reservation> findTopByBookBookIdAndStatusOrderByReservationDateAscReservationIdAsc(Long bookId, ReservationStatus reservationStatus);
 
-    List<Reservation> findByBookBookIdAndStatusAndExpiryDateLessThanEqual(Long bookId, ReservationStatus reservationStatus,LocalDate now);
+    List<Reservation> findByBookBookIdAndStatusAndExpiryDateLessThanEqual(Long bookId, ReservationStatus reservationStatus, LocalDate now);
 
-    List<Reservation> findByStatusOrderByReservationDateAscReservationIdAsc(ReservationStatus reservationStatus);
+
+    List<Reservation> findByBookBookIdAndStatusAndExpiryDateBeforeOrderByReservationDateAscReservationIdAsc(Long bookId, ReservationStatus reservationStatus, LocalDate now);
 }
