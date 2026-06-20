@@ -18,12 +18,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findByBookBookId(Long bookId);
 
-    @Query("select r from Reservation r where r.status= :status")
-    List<Reservation> findByStatus(@Param("status") ReservationStatus status);
+    @Query("select r from Reservation r where r.status= :status and r.expiryDate > :today")
+    List<Reservation> findByStatusAndExpiryDateAfter(@Param("status") ReservationStatus status, @Param("today") LocalDate today);
+
 
     Optional<Reservation> findByReservationIdAndStatus(Long reservationId, ReservationStatus reservationStatus);
 
-    boolean existsByMemberMemberIdAndBookBookIdAndStatus(Long memberId, Long bookId, ReservationStatus reservationStatus);
+    boolean existsByMemberMemberIdAndBookBookIdAndStatusAndExpiryDateAfter(Long memberId, Long bookId, ReservationStatus reservationStatus, LocalDate now);
 
     List<Reservation> findByStatusAndExpiryDateLessThanEqual(ReservationStatus reservationStatus, LocalDate now);
 
@@ -32,6 +33,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findByBookBookIdAndStatusAndExpiryDateLessThanEqual(Long bookId, ReservationStatus reservationStatus, LocalDate now);
 
+    List<Reservation> findByBookBookIdAndStatusAndExpiryDateAfterOrderByReservationDateAscReservationIdAsc(Long bookId, ReservationStatus reservationStatus, LocalDate now);
 
-    List<Reservation> findByBookBookIdAndStatusAndExpiryDateBeforeOrderByReservationDateAscReservationIdAsc(Long bookId, ReservationStatus reservationStatus, LocalDate now);
 }

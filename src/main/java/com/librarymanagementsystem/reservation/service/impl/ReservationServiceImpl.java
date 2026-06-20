@@ -61,6 +61,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setReservationDate(LocalDate.now());
         reservation.setStatus(ReservationStatus.PENDING);
         reservation.setExpiryDate(reservation.getReservationDate().plusDays(3));
+
         return reservationMapper.toResponse(reservationRepository.save(reservation));
     }
 
@@ -101,7 +102,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponse> getReservationPending() {
 
-        List<Reservation> reservationList = reservationRepository.findByStatus(ReservationStatus.PENDING);
+        List<Reservation> reservationList = reservationRepository.findByStatusAndExpiryDateAfter(ReservationStatus.PENDING,LocalDate.now());
         return reservationList.stream().map(reservationMapper::toResponse).toList();
 
     }
@@ -135,7 +136,7 @@ public class ReservationServiceImpl implements ReservationService {
         bookRepository.findById(bookId)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + bookId));
 
-        List<Reservation> reservationList = reservationRepository.findByBookBookIdAndStatusAndExpiryDateBeforeOrderByReservationDateAscReservationIdAsc(bookId, ReservationStatus.PENDING, LocalDate.now());
+        List<Reservation> reservationList = reservationRepository.findByBookBookIdAndStatusAndExpiryDateAfterOrderByReservationDateAscReservationIdAsc(bookId, ReservationStatus.PENDING, LocalDate.now());
         return reservationList.stream().map(reservationMapper::toResponse).toList();
 
     }
@@ -159,7 +160,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     private void existsReservationValidation(Long memberId, Long bookId) {
 
-        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatus(memberId, bookId, ReservationStatus.PENDING);
+        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatusAndExpiryDateAfter(memberId, bookId, ReservationStatus.PENDING,LocalDate.now());
 
         if (existsReservation) {
             throw new BadRequestException("Member already has an active reservation for this book.");
