@@ -80,7 +80,7 @@ public class LoanServiceImpl implements LoanService {
 
         loan.setBook(book);
         loan.setBorrowDate(LocalDate.now());
-        loan.setDueDate(loan.getBorrowDate().plusDays(1));
+        loan.setDueDate(loan.getBorrowDate().plusDays(14));
         loan.setMember(member);
         loan.setStatus(LoanStatus.BORROWED);
 

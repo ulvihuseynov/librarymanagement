@@ -40,6 +40,12 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST,"/api/books/**").hasAnyAuthority("ROLE_ADMIN","ROLE_LIBRARIAN")
                                 .requestMatchers(HttpMethod.PUT,"/api/books/**").hasAnyAuthority("ROLE_ADMIN","ROLE_LIBRARIAN")
                                 .requestMatchers(HttpMethod.DELETE,"/api/books/**").hasAnyAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/loans/**").hasAnyAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/fines/**").hasAnyAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/members/**").hasAnyAuthority("ROLE_ADMIN")
+                                .requestMatchers("/api/reservations/**").hasAnyAuthority("ROLE_ADMIN")
+
+
                                 .requestMatchers("/api/books/**").authenticated()
 
 
