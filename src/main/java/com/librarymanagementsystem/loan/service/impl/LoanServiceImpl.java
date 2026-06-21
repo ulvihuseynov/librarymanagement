@@ -17,6 +17,8 @@ import com.librarymanagementsystem.loan.service.LoanService;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
+import com.librarymanagementsystem.member.service.MemberService;
+import com.librarymanagementsystem.member.service.impl.MemberServiceImpl;
 import com.librarymanagementsystem.reservation.entity.Reservation;
 import com.librarymanagementsystem.reservation.entity.ReservationStatus;
 import com.librarymanagementsystem.reservation.repository.ReservationRepository;
@@ -39,6 +41,7 @@ public class LoanServiceImpl implements LoanService {
     private final FineRepository fineRepository;
     private final MemberRepository memberRepository;
     private final ReservationRepository reservationRepository;
+    private final MemberService memberService;
     private final LoanMapper loanMapper;
 
     @Transactional
@@ -101,6 +104,8 @@ public class LoanServiceImpl implements LoanService {
 
     @Override
     public LoanResponse getLoanById(Long borrowId) {
+
+        memberService.getCurrentMemberProfile();
 
         Loan loan = getLoan(borrowId);
         return loanMapper.toResponse(loan);

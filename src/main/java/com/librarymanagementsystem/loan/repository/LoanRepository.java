@@ -2,7 +2,9 @@ package com.librarymanagementsystem.loan.repository;
 
 import com.librarymanagementsystem.loan.entity.Loan;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -40,6 +42,7 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
     boolean existsByMemberMemberIdAndBookBookIdAndStatusIn(Long memberId, Long bookId,List<LoanStatus> borrowed);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select l from Loan l where l.loanId= :loanId")
     Optional<Loan> findByForUpdate(@Param("loanId") Long loanId);
 }
