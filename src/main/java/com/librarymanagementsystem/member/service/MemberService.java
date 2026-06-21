@@ -21,4 +21,6 @@ public interface MemberService {
     MemberResponse updateMember(@Valid MemberUpdateRequest memberUpdateRequest, Long id);
 
     MemberResponse deActiveMember(Long id);
+
+    MemberResponse getCurrentMemberProfile();
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LoanRepository extends JpaRepository<Loan, Long> {
@@ -38,4 +39,7 @@ public interface LoanRepository extends JpaRepository<Loan, Long> {
 
 
     boolean existsByMemberMemberIdAndBookBookIdAndStatusIn(Long memberId, Long bookId,List<LoanStatus> borrowed);
+
+    @Query("select l from Loan l where l.loanId= :loanId")
+    Optional<Loan> findByForUpdate(@Param("loanId") Long loanId);
 }

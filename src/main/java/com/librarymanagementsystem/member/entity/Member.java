@@ -1,6 +1,8 @@
 package com.librarymanagementsystem.member.entity;
 
+
 import com.librarymanagementsystem.common.audit.BaseEntity;
+import com.librarymanagementsystem.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -38,5 +40,10 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MemberStatus status;
+
+
+    @OneToOne
+    @JoinColumn(name="user_id",nullable = false,unique = true)
+    private User user;
 
 }

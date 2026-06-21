@@ -142,9 +142,13 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public LoanResponse updateLoan(Long loanId) {
 
-        Loan loanFromDb = getLoan(loanId);
+        Loan loanFromDb = loanRepository.findByForUpdate(loanId)
+                .orElseThrow(()->new ResourceNotFoundException("Loan not found with ID "+ loanId));
 
-        Book book = loanFromDb.getBook();
+        Long bookId = loanFromDb.getBook().getBookId();
+
+        Book book = bookRepository.findByIdForUpdate(bookId)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + bookId));
 
 
         if (loanFromDb.getStatus() == LoanStatus.RETURNED) {

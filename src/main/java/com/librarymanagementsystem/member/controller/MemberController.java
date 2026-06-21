@@ -77,4 +77,12 @@ public class MemberController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Member successfully deActive .",memberResponse));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<MemberResponse>> getCurrentMemberProfile(){
+
+        MemberResponse memberResponse= memberService.getCurrentMemberProfile();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The current member profile was successfully delivered .",memberResponse));
+    }
 }
