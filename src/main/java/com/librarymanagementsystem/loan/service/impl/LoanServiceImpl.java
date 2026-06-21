@@ -17,8 +17,7 @@ import com.librarymanagementsystem.loan.service.LoanService;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
-import com.librarymanagementsystem.member.service.MemberService;
-import com.librarymanagementsystem.member.service.impl.MemberServiceImpl;
+import com.librarymanagementsystem.member.service.MemberAccessService;
 import com.librarymanagementsystem.reservation.entity.Reservation;
 import com.librarymanagementsystem.reservation.entity.ReservationStatus;
 import com.librarymanagementsystem.reservation.repository.ReservationRepository;
@@ -41,7 +40,7 @@ public class LoanServiceImpl implements LoanService {
     private final FineRepository fineRepository;
     private final MemberRepository memberRepository;
     private final ReservationRepository reservationRepository;
-    private final MemberService memberService;
+    private final MemberAccessService memberAccessService;
     private final LoanMapper loanMapper;
 
     @Transactional
@@ -105,7 +104,6 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public LoanResponse getLoanById(Long borrowId) {
 
-        memberService.getCurrentMemberProfile();
 
         Loan loan = getLoan(borrowId);
         return loanMapper.toResponse(loan);
@@ -224,6 +222,15 @@ public class LoanServiceImpl implements LoanService {
 
 
         return overDueLoans.stream().map(loanMapper::toResponse).toList();
+    }
+
+    @Override
+    public List<LoanResponse> getMyLoans() {
+
+
+        Member currentMember = memberAccessService.getCurrentMember();
+        List<Loan> loans = loanRepository.findByMemberMemberId(currentMember.getMemberId());
+        return loans.stream().map(loanMapper::toResponse).toList();
     }
 
     private void unPaidFineIsMemberValidation(Long memberId) {

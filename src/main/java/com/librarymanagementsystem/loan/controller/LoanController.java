@@ -90,4 +90,13 @@ public class LoanController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Loan successfully returned", loanResponse));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<LoanResponse>>> getMyLoans() {
+
+
+        List<LoanResponse> loanResponse = loanService.getMyLoans();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Loan successfully returned", loanResponse));
+    }
 }

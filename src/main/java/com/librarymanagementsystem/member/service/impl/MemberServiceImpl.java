@@ -105,7 +105,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberResponse getCurrentMemberProfile() {
 
-        UserDetailsImpl userDetails =(UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getDetails();
+        UserDetailsImpl userDetails =(UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 
         Member member = memberRepository.findByUserUserId(userDetails.getUserId())

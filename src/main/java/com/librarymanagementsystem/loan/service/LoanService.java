@@ -21,4 +21,6 @@ public interface LoanService {
     LoanResponse updateLoan(Long loanId);
 
     List<LoanResponse> checkOverdue();
+
+    List<LoanResponse> getMyLoans();
 }
