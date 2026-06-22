@@ -63,6 +63,6 @@ public class FineController {
 
         List<FineResponse> fineResponse= fineService.getMyFines();
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully updated",fineResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fines were successfully  retrieved",fineResponse));
     }
 }

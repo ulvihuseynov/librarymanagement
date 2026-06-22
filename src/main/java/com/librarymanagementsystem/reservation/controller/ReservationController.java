@@ -98,7 +98,7 @@ public class ReservationController {
 
         List<ReservationResponse> reservationResponse= reservationService.getMyReservations();
 
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("Expired reservations were successfully updated",reservationResponse));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservations were successfully retrieved",reservationResponse));
     }
 }
 
