@@ -57,4 +57,12 @@ public class FineController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully updated",fineResponse));
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<FineResponse>>> getMyFines(){
+
+        List<FineResponse> fineResponse= fineService.getMyFines();
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fine was successfully updated",fineResponse));
+    }
 }

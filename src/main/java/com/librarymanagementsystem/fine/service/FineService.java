@@ -14,4 +14,6 @@ public interface FineService {
     List<FineResponse> getFineByUnPaid();
 
     FineResponse payFine(Long fineId);
+
+    List<FineResponse> getMyFines();
 }

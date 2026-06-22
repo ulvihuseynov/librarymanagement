@@ -11,6 +11,7 @@ import com.librarymanagementsystem.loan.repository.LoanRepository;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
+import com.librarymanagementsystem.member.service.MemberAccessService;
 import com.librarymanagementsystem.reservation.dto.ReservationCreateRequest;
 import com.librarymanagementsystem.reservation.dto.ReservationResponse;
 import com.librarymanagementsystem.reservation.entity.Reservation;
@@ -34,6 +35,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final BookRepository bookRepository;
     private final LoanRepository loanRepository;
     private final FineRepository fineRepository;
+    private final MemberAccessService memberAccessService;
     private final ReservationMapper reservationMapper;
 
     @Override
@@ -139,6 +141,14 @@ public class ReservationServiceImpl implements ReservationService {
         List<Reservation> reservationList = reservationRepository.findByBookBookIdAndStatusAndExpiryDateAfterOrderByReservationDateAscReservationIdAsc(bookId, ReservationStatus.PENDING, LocalDate.now());
         return reservationList.stream().map(reservationMapper::toResponse).toList();
 
+    }
+
+    @Override
+    public List<ReservationResponse> getMyReservations() {
+
+        Member currentMember = memberAccessService.getCurrentMember();
+        List<Reservation> reservationList = reservationRepository.findByMemberMemberId(currentMember.getMemberId());
+        return reservationList.stream().map(reservationMapper::toResponse).toList();
     }
 
 

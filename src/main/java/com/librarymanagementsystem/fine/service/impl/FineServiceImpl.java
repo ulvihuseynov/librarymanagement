@@ -10,7 +10,9 @@ import com.librarymanagementsystem.fine.mapper.FineMapper;
 import com.librarymanagementsystem.fine.repository.FineRepository;
 import com.librarymanagementsystem.fine.service.FineService;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
+import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.repository.MemberRepository;
+import com.librarymanagementsystem.member.service.MemberAccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,7 @@ public class FineServiceImpl implements FineService {
     private final FineRepository fineRepository;
     private final MemberRepository memberRepository;
     private final FineMapper fineMapper;
+    private final MemberAccessService memberAccessService;
 
     @Override
     public List<FineResponse> getFineList() {
@@ -69,6 +72,14 @@ if (fineFromDb.getLoan().getStatus()!= LoanStatus.RETURNED){
         fineFromDb.setStatus(FineStatus.PAID);
         fineFromDb.setPaidAt(LocalDate.now());
         return fineMapper.toResponse(fineFromDb);
+    }
+
+    @Override
+    public List<FineResponse> getMyFines() {
+
+        Member currentMember = memberAccessService.getCurrentMember();
+        List<Fine> fineList = fineRepository.findByLoanMemberMemberId(currentMember.getMemberId());
+        return fineList.stream().map(fineMapper::toResponse).toList();
     }
 
     private Fine getFine(Long id) {
