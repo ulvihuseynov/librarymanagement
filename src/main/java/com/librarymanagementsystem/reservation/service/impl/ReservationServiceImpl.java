@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.reservation.service.impl;
 
 import com.librarymanagementsystem.book.entity.Book;
+import com.librarymanagementsystem.book.entity.BookStatus;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
@@ -52,6 +53,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 
         isActiveMemberValidation(member.getStatus());
+        isActiveBookValidation(book.getStatus());
         bookAvailableValidation(book.getAvailableCopies());
         existsReservationValidation(member.getMemberId(), book.getBookId());
         existsMemberBookValidation(member.getMemberId(), book.getBookId());
@@ -190,7 +192,12 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Member is not active and cannot reserve books");
         }
     }
+    private void isActiveBookValidation(BookStatus status) {
 
+        if (status != BookStatus.ACTIVE) {
+            throw new BadRequestException("Book is not active");
+        }
+    }
     private Reservation getReservation(Long reservationId) {
 
         return reservationRepository.findById(reservationId)

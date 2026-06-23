@@ -33,6 +33,10 @@ public class Book extends BaseEntity {
     @Column(nullable = false)
     private Integer totalCopies;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookStatus status;
+
     @Column(nullable = false)
     private Integer availableCopies;
 

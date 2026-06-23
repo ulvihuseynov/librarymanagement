@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.loan.service.impl;
 
 import com.librarymanagementsystem.book.entity.Book;
+import com.librarymanagementsystem.book.entity.BookStatus;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
@@ -55,7 +56,9 @@ public class LoanServiceImpl implements LoanService {
         Member member = memberRepository.findById(loanCreateRequest.getMemberId())
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + loanCreateRequest.getMemberId()));
 
+
         unPaidFineIsMemberValidation(member.getMemberId());
+        bookIsActiveStatus(book.getStatus());
         memberIsActiveStatus(member.getStatus());
         duplicateMemberBook(loanCreateRequest.getBookId(), loanCreateRequest.getMemberId());
         isNotAvailableValidation(book.getAvailableCopies());
@@ -247,6 +250,13 @@ public class LoanServiceImpl implements LoanService {
 
         if (status != MemberStatus.ACTIVE) {
             throw new BadRequestException("Member is not active and cannot borrow books");
+        }
+    }
+
+    private void bookIsActiveStatus(BookStatus status) {
+
+        if (status != BookStatus.ACTIVE) {
+            throw new BadRequestException("Book is not active");
         }
     }
 
