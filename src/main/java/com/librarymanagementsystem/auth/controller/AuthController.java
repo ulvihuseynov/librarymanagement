@@ -40,10 +40,10 @@ public class AuthController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<String>> activationMember(@RequestBody ActivationRequest activationRequest) {
+    public ResponseEntity<ApiResponse<String>> activationMember(@Valid @RequestBody ActivationRequest activationRequest) {
 
         String status = activationService.activate(activationRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(status, null));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(status, null));
     }
 }
