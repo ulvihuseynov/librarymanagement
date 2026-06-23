@@ -67,19 +67,19 @@ public class ActivationService {
                 .orElseThrow(()->new ResourceNotFoundException("Activation token is invalid"));
 
         if (memberActivationToken.getUsedAt()!=null){
-            throw new BadRequestException("Token already is used");
+            throw new BadRequestException("Activation token has already been used");
         }
 
         LocalDateTime expiresAt = memberActivationToken.getExpiresAt();
 
-        if (expiresAt.isEqual(LocalDateTime.now())){
+        if (expiresAt.isBefore(LocalDateTime.now())){
             throw new BadRequestException("Token expiration date has expired. ");
         }
 
         Member member = memberActivationToken.getMember();
 
         if (member.getUser() !=null){
-            throw new DuplicateResourceException("User already exist");
+            throw new DuplicateResourceException("User already exists");
         }
 
         Role role = roleRepository.findByRoleName(AppRole.ROLE_MEMBER)

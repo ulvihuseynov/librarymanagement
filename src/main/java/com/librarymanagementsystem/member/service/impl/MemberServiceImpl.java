@@ -3,6 +3,7 @@ package com.librarymanagementsystem.member.service.impl;
 import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.email.service.EmailService;
 import com.librarymanagementsystem.member.dto.ActivationTokenResult;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
 import com.librarymanagementsystem.member.dto.MemberResponse;
@@ -14,6 +15,7 @@ import com.librarymanagementsystem.member.repository.MemberRepository;
 import com.librarymanagementsystem.member.service.MemberService;
 import com.librarymanagementsystem.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +29,11 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final ActivationService activationService;
+    private final EmailService emailService;
     private final MemberMapper memberMapper;
 
+    @Value("${app.activation.base-url}")
+    private String baseUrl;
 
     @Transactional
     @Override
@@ -45,6 +50,13 @@ public class MemberServiceImpl implements MemberService {
         Member savedMember = memberRepository.save(member);
         ActivationTokenResult activationTokenResult = activationService.createMemberActivationToken(savedMember);
 
+        emailService.sendActivationEmail(
+                member.getEmail(),
+                baseUrl +
+                        "?token="+
+                activationTokenResult.getRawToken(),
+                activationTokenResult.getExpiryDate()
+        );
 
         return memberMapper.toResponse(savedMember);
     }
