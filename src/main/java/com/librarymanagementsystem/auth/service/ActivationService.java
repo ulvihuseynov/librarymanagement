@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.auth.service;
 
+import com.librarymanagementsystem.auth.dto.ActivationRequest;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.member.dto.ActivationTokenResult;
@@ -13,6 +14,7 @@ import com.librarymanagementsystem.user.entity.User;
 import com.librarymanagementsystem.user.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class ActivationService {
     private Long activationTokenS;
 
     private final MemberActivationTokenRepository memberActivationTokenRepository;
+    private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final TokenGenerator tokenGenerator;
 
@@ -53,9 +56,9 @@ public class ActivationService {
     }
 
     @Transactional
-    public String activate(String rawToken) {
+    public String activate(ActivationRequest activationRequest) {
 
-        String hashToken = tokenGenerator.hashToken(rawToken);
+        String hashToken = tokenGenerator.hashToken(activationRequest.getToken());
 
         MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashToken(hashToken)
                 .orElseThrow(()->new ResourceNotFoundException("MemberActivationToken not found with hashToken"));
@@ -77,10 +80,11 @@ public class ActivationService {
 
         User user =new User();
 
+        user.setUsername(activationRequest.getUsername());
         user.setEnabled(true);
         user.setRoles(Set.of(role));
         user.setEmail(member.getEmail());
-        user.setPassword(hashToken);
+        user.setPassword(passwordEncoder.encode(activationRequest.getPassword()));
 
         member.setUser(user);
         memberActivationToken.setUsedAt(LocalDateTime.now());

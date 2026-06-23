@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.auth.controller;
 
+import com.librarymanagementsystem.auth.dto.ActivationRequest;
 import com.librarymanagementsystem.auth.dto.LoginRequest;
 import com.librarymanagementsystem.auth.dto.RegisterRequest;
 import com.librarymanagementsystem.auth.service.ActivationService;
@@ -39,9 +40,9 @@ public class AuthController {
     }
 
     @PostMapping("/activate")
-    public ResponseEntity<ApiResponse<String>> activationMember(@RequestBody String rawToken) {
+    public ResponseEntity<ApiResponse<String>> activationMember(@RequestBody ActivationRequest activationRequest) {
 
-        String status = activationService.activate(rawToken);
+        String status = activationService.activate(activationRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(status, null));
     }
