@@ -13,6 +13,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
 
 @Component
 @RequiredArgsConstructor
@@ -52,4 +57,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         return null;
     }
+
+
 }
