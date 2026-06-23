@@ -3,6 +3,7 @@ package com.librarymanagementsystem.member.service.impl;
 import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.member.dto.ActivationTokenResult;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
 import com.librarymanagementsystem.member.dto.MemberResponse;
 import com.librarymanagementsystem.member.dto.MemberUpdateRequest;
@@ -41,8 +42,10 @@ public class MemberServiceImpl implements MemberService {
 
 
         member.setStatus(MemberStatus.ACTIVE);
-        activationService.createMemberActivationToken(member);
-        return memberMapper.toResponse(memberRepository.save(member));
+        Member savedMember = memberRepository.save(member);
+        ActivationTokenResult memberActivationToken = activationService.createMemberActivationToken(member);
+
+        return memberMapper.toResponse(savedMember);
     }
 
 

@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.auth.service;
 
+import com.librarymanagementsystem.member.dto.ActivationTokenResult;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberActivationToken;
 import com.librarymanagementsystem.member.repository.MemberActivationTokenRepository;
@@ -7,9 +8,6 @@ import com.librarymanagementsystem.security.TokenGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.security.NoSuchAlgorithmException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -24,8 +22,9 @@ public class ActivationService {
 
 
 
-    public MemberActivationToken createMemberActivationToken(Member member)  {
+    public ActivationTokenResult createMemberActivationToken(Member member)  {
 
+        ActivationTokenResult activationTokenResult=new ActivationTokenResult();
         MemberActivationToken memberActivationToken=new MemberActivationToken();
 
         String rawToken = tokenGenerator.generateToken();
@@ -36,6 +35,10 @@ public class ActivationService {
         memberActivationToken.setUsedAt(null);
         memberActivationToken.setMember(member);
 
-        return memberActivationTokenRepository.save(memberActivationToken);
+        memberActivationTokenRepository.save(memberActivationToken);
+        activationTokenResult.setRawToken(rawToken);
+        activationTokenResult.setExpiryDate(memberActivationToken.getExpiresAt());
+
+        return activationTokenResult;
     }
 }
