@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
@@ -15,7 +14,7 @@ import java.util.Base64;
 @RequiredArgsConstructor
 public  class TokenGenerator {
 
-    private final SecureRandom secureRandom;
+     SecureRandom secureRandom=new SecureRandom();
 
     public String generateToken(){
 
@@ -37,7 +36,7 @@ public  class TokenGenerator {
 
        }catch (GeneralSecurityException e){
 
-           throw new BadRequestException(e.getMessage());
+           throw new RuntimeException(e.getMessage());
        }
 
     }

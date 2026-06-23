@@ -2,6 +2,7 @@ package com.librarymanagementsystem.auth.controller;
 
 import com.librarymanagementsystem.auth.dto.LoginRequest;
 import com.librarymanagementsystem.auth.dto.RegisterRequest;
+import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.auth.service.AuthService;
 import com.librarymanagementsystem.common.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -19,21 +20,29 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-
+    private final ActivationService activationService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginRequest loginRequest){
+    public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginRequest loginRequest) {
 
-        ApiResponse<Object> loginResponse=  authService.login(loginRequest);
+        ApiResponse<Object> loginResponse = authService.login(loginRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Object>> register(@Valid @RequestBody RegisterRequest registerRequest){
+    public ResponseEntity<ApiResponse<Object>> register(@Valid @RequestBody RegisterRequest registerRequest) {
 
-        ApiResponse<Object> registerResponse=  authService.register(registerRequest);
+        ApiResponse<Object> registerResponse = authService.register(registerRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(registerResponse);
+    }
+
+    @PostMapping("/activate")
+    public ResponseEntity<ApiResponse<String>> activationMember(@RequestBody String rawToken) {
+
+        String status = activationService.activate(rawToken);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(status, null));
     }
 }

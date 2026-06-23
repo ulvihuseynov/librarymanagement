@@ -43,7 +43,8 @@ public class MemberServiceImpl implements MemberService {
 
         member.setStatus(MemberStatus.ACTIVE);
         Member savedMember = memberRepository.save(member);
-        ActivationTokenResult memberActivationToken = activationService.createMemberActivationToken(member);
+        ActivationTokenResult activationTokenResult = activationService.createMemberActivationToken(savedMember);
+
 
         return memberMapper.toResponse(savedMember);
     }

@@ -27,7 +27,7 @@ public class MemberActivationToken extends BaseEntity {
     private Member member;
 
     @Column(nullable = false, unique = true,length = 64)
-    private String tokenHash;
+    private String hashToken;
 
     @Column(nullable = false)
     private LocalDateTime expiresAt;

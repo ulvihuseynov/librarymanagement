@@ -1,14 +1,23 @@
 package com.librarymanagementsystem.auth.service;
 
+import com.librarymanagementsystem.common.exception.BadRequestException;
+import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.member.dto.ActivationTokenResult;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberActivationToken;
 import com.librarymanagementsystem.member.repository.MemberActivationTokenRepository;
 import com.librarymanagementsystem.security.TokenGenerator;
+import com.librarymanagementsystem.user.entity.AppRole;
+import com.librarymanagementsystem.user.entity.Role;
+import com.librarymanagementsystem.user.entity.User;
+import com.librarymanagementsystem.user.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +27,7 @@ public class ActivationService {
     private Long activationTokenS;
 
     private final MemberActivationTokenRepository memberActivationTokenRepository;
+    private final RoleRepository roleRepository;
     private final TokenGenerator tokenGenerator;
 
 
@@ -31,7 +41,7 @@ public class ActivationService {
         String hashToken = tokenGenerator.hashToken(rawToken);
 
         memberActivationToken.setExpiresAt(LocalDateTime.now().plusSeconds(activationTokenS));
-        memberActivationToken.setTokenHash(hashToken);
+        memberActivationToken.setHashToken(hashToken);
         memberActivationToken.setUsedAt(null);
         memberActivationToken.setMember(member);
 
@@ -40,5 +50,41 @@ public class ActivationService {
         activationTokenResult.setExpiryDate(memberActivationToken.getExpiresAt());
 
         return activationTokenResult;
+    }
+
+    @Transactional
+    public String activate(String rawToken) {
+
+        String hashToken = tokenGenerator.hashToken(rawToken);
+
+        MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashToken(hashToken)
+                .orElseThrow(()->new ResourceNotFoundException("MemberActivationToken not found with hashToken"));
+
+        if (memberActivationToken.getUsedAt()!=null){
+            throw new BadRequestException("Token already is used");
+        }
+
+        LocalDateTime expiresAt = memberActivationToken.getExpiresAt();
+
+        if (expiresAt.isBefore(LocalDateTime.now())){
+            throw new BadRequestException("Token expiration date has expired. ");
+        }
+
+        Member member = memberActivationToken.getMember();
+
+        Role role = roleRepository.findByRoleName(AppRole.ROLE_MEMBER)
+                .orElseThrow(() -> new ResourceNotFoundException("Role not found " + AppRole.ROLE_MEMBER));
+
+        User user =new User();
+
+        user.setEnabled(true);
+        user.setRoles(Set.of(role));
+        user.setEmail(member.getEmail());
+        user.setPassword(hashToken);
+
+        member.setUser(user);
+        memberActivationToken.setUsedAt(LocalDateTime.now());
+
+        return "Account activated successfully";
     }
 }

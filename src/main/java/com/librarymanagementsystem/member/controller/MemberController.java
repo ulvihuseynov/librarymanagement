@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.member.controller;
 
+import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.common.response.ApiResponse;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
 import com.librarymanagementsystem.member.dto.MemberResponse;
@@ -19,6 +20,7 @@ import java.util.List;
 public class MemberController {
 
     private final MemberService memberService;
+
 
     @PostMapping
     public ResponseEntity<ApiResponse<MemberResponse>> createMember(@Valid @RequestBody MemberCreateRequest memberCreateRequest){
@@ -85,4 +87,6 @@ public class MemberController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The current member profile was successfully delivered .",memberResponse));
     }
+
+
 }
