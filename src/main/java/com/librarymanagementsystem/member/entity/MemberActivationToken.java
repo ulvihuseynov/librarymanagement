@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 
 @Entity
@@ -31,7 +30,7 @@ public class MemberActivationToken extends BaseEntity {
     private String tokenHash;
 
     @Column(nullable = false)
-    private Date expiresAt;
+    private LocalDateTime expiresAt;
 
     @Column
     private LocalDateTime usedAt;

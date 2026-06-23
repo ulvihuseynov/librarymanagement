@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.auth.service;
 
+import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberActivationToken;
 import com.librarymanagementsystem.member.repository.MemberActivationTokenRepository;
 import com.librarymanagementsystem.security.TokenGenerator;
@@ -8,8 +9,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -23,21 +24,17 @@ public class ActivationService {
 
 
 
-    private   Date expiredDate(){
-
-        return new Date(activationTokenS + System.currentTimeMillis());
-    }
-
-    private MemberActivationToken createEntity() throws NoSuchAlgorithmException {
+    public MemberActivationToken createMemberActivationToken(Member member)  {
 
         MemberActivationToken memberActivationToken=new MemberActivationToken();
 
         String rawToken = tokenGenerator.generateToken();
         String hashToken = tokenGenerator.hashToken(rawToken);
 
-        memberActivationToken.setExpiresAt((expiredDate()));
+        memberActivationToken.setExpiresAt(LocalDateTime.now().plusSeconds(activationTokenS));
         memberActivationToken.setTokenHash(hashToken);
         memberActivationToken.setUsedAt(null);
+        memberActivationToken.setMember(member);
 
         return memberActivationTokenRepository.save(memberActivationToken);
     }

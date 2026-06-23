@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.member.service.impl;
 
+import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
@@ -24,6 +25,7 @@ import java.util.List;
 public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
+    private final ActivationService activationService;
     private final MemberMapper memberMapper;
 
 
@@ -39,7 +41,7 @@ public class MemberServiceImpl implements MemberService {
 
 
         member.setStatus(MemberStatus.ACTIVE);
-
+        activationService.createMemberActivationToken(member);
         return memberMapper.toResponse(memberRepository.save(member));
     }
 
@@ -105,7 +107,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberResponse getCurrentMemberProfile() {
 
-        UserDetailsImpl userDetails =(UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
 
         Member member = memberRepository.findByUserUserId(userDetails.getUserId())
