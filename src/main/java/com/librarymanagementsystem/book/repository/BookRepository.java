@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.book.repository;
 
 import com.librarymanagementsystem.book.entity.Book;
+import com.librarymanagementsystem.book.entity.BookStatus;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
@@ -23,4 +24,6 @@ public interface BookRepository extends JpaRepository<Book,Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from Book b where b.bookId= :bookId")
     Optional<Book>  findByIdForUpdate(@Param("bookId") Long bookId);
+
+    List<Book> findByStatus(BookStatus bookStatus);
 }

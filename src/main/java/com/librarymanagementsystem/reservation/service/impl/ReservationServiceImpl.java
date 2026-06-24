@@ -39,6 +39,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final MemberAccessService memberAccessService;
     private final ReservationMapper reservationMapper;
 
+    @Transactional
     @Override
     public ReservationResponse createReservation(ReservationCreateRequest reservationCreateRequest) {
 
@@ -48,7 +49,7 @@ public class ReservationServiceImpl implements ReservationService {
         Member member = memberRepository.findById(reservationCreateRequest.getMemberId())
                 .orElseThrow(() -> new ResourceNotFoundException("Member not found with ID " + reservationCreateRequest.getMemberId()));
 
-        Book book = bookRepository.findById(reservationCreateRequest.getBookId())
+        Book book = bookRepository.findByIdForUpdate(reservationCreateRequest.getBookId())
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + reservationCreateRequest.getBookId()));
 
 

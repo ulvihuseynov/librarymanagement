@@ -36,14 +36,14 @@ public class BookServiceImpl implements BookService {
         }
         book.setAvailableCopies(bookCreateRequest.getTotalCopies());
         book.setStatus(BookStatus.ACTIVE);
-        
+
         return bookMapper.toResponse(bookRepository.save(book));
     }
 
     @Override
     public List<BookResponse> getBookList() {
 
-        List<Book> bookList = bookRepository.findAll();
+        List<Book> bookList = bookRepository.findByStatus(BookStatus.ACTIVE);
         return bookList.stream().map(bookMapper::toResponse).toList();
     }
 
@@ -84,7 +84,8 @@ public class BookServiceImpl implements BookService {
     public String deleteBook(Long id) {
         Book book = getBook(id);
         book.setStatus(BookStatus.ARCHIVED);
-        return "Book successfully deleted with ID " + id;
+        bookRepository.save(book);
+        return "Book successfully archived with ID " + id;
     }
 
     @Override

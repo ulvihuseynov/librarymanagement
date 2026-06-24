@@ -63,7 +63,7 @@ public class ActivationService {
 
         String hashToken = tokenGenerator.hashToken(activationRequest.getToken());
 
-        MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashToken(hashToken)
+        MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashTokenAndExpiresAtGreaterThanEqual(hashToken,LocalDateTime.now())
                 .orElseThrow(()->new ResourceNotFoundException("Activation token is invalid"));
 
         if (memberActivationToken.getUsedAt()!=null){
