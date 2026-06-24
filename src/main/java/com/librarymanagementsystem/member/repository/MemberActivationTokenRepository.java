@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface MemberActivationTokenRepository extends JpaRepository<MemberActivationToken ,Long> {
 
 
-    Optional<MemberActivationToken> findByHashTokenAndExpiresAtGreaterThanEqual(String hashToken, LocalDateTime now);
+    Optional<MemberActivationToken> findByHashTokenAndExpiresAtGreaterThan(String hashToken, LocalDateTime now);
 }

@@ -13,17 +13,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BookRepository extends JpaRepository<Book,Long> {
+public interface BookRepository extends JpaRepository<Book, Long> {
 
     boolean existsByIsbn(String isbn);
 
-    Optional<Book> findByIsbn(String isbn);
+    List<Book> findByTitleContainingIgnoreCaseAndStatus(String title, BookStatus bookStatus);
 
-    List<Book> findByTitleContainingIgnoreCase(String title);
+    Optional<Book> findByIsbnAndStatus(String isbn, BookStatus bookStatus);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from Book b where b.bookId= :bookId")
-    Optional<Book>  findByIdForUpdate(@Param("bookId") Long bookId);
+    Optional<Book> findByIdForUpdate(@Param("bookId") Long bookId);
 
     List<Book> findByStatus(BookStatus bookStatus);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select b from Book b where b.bookId= :bookId and b.status=:status")
+    Optional<Book> findByIdForUpdateAndStatus(@Param("bookId") Long bookId, @Param("status") BookStatus status);
+
 }

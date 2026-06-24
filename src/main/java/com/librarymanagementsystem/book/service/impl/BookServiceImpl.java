@@ -59,7 +59,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse updateBook(BookUpdateRequest bookUpdateRequest, Long id) {
 
-        Book bookFromDb = bookRepository.findByIdForUpdate(id)
+        Book bookFromDb = bookRepository.findByIdForUpdateAndStatus(id,BookStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + id));
 
 
@@ -82,7 +82,9 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public String deleteBook(Long id) {
-        Book book = getBook(id);
+        Book book = bookRepository.findByIdForUpdate(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + id));
+                ;
         book.setStatus(BookStatus.ARCHIVED);
         bookRepository.save(book);
         return "Book successfully archived with ID " + id;
@@ -90,14 +92,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookResponse> getBookByTitle(String title) {
-        List<Book> bookList = bookRepository.findByTitleContainingIgnoreCase(title);
+        List<Book> bookList = bookRepository.findByTitleContainingIgnoreCaseAndStatus(title,BookStatus.ACTIVE);
         return bookList.stream().map(bookMapper::toResponse).toList();
     }
 
     @Override
     public BookResponse getBookByIsbn(String isbn) {
 
-        Book book = bookRepository.findByIsbn(isbn)
+        Book book = bookRepository.findByIsbnAndStatus(isbn,BookStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with isbn " + isbn));
 
         return bookMapper.toResponse(book);

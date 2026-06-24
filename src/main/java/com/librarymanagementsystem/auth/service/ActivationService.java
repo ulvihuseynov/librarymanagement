@@ -63,8 +63,8 @@ public class ActivationService {
 
         String hashToken = tokenGenerator.hashToken(activationRequest.getToken());
 
-        MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashTokenAndExpiresAtGreaterThanEqual(hashToken,LocalDateTime.now())
-                .orElseThrow(()->new ResourceNotFoundException("Activation token is invalid"));
+        MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashTokenAndExpiresAtGreaterThan(hashToken,LocalDateTime.now())
+                .orElseThrow(()->new ResourceNotFoundException( "Activation token is invalid or expired"));
 
         if (memberActivationToken.getUsedAt()!=null){
             throw new BadRequestException("Activation token has already been used");
