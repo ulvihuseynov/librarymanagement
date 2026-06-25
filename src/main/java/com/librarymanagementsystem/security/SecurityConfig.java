@@ -26,24 +26,31 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
     private final JwtAccessDeniedHandler accessDeniedHandler;
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity){
 
-      return   httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(header->header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-              .exceptionHandling(exception->
-                      exception.accessDeniedHandler(accessDeniedHandler)
-                              .authenticationEntryPoint(authenticationEntryPoint))
-              .authorizeHttpRequests(request->
-                        request.requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/api/loans/me").hasAuthority("ROLE_MEMBER")
-                                .requestMatchers(HttpMethod.GET,"/api/members/me").hasAuthority("ROLE_MEMBER")
-                                .requestMatchers(HttpMethod.GET,"/api/reservations/me").hasAuthority("ROLE_MEMBER")
-                                .requestMatchers(HttpMethod.GET,"/api/fines/me").hasAuthority("ROLE_MEMBER")
-                                .requestMatchers(HttpMethod.POST,"/api/books/**").hasAnyAuthority("ROLE_ADMIN","ROLE_LIBRARIAN")
-                                .requestMatchers(HttpMethod.PUT,"/api/books/**").hasAnyAuthority("ROLE_ADMIN","ROLE_LIBRARIAN")
-                                .requestMatchers(HttpMethod.DELETE,"/api/books/**").hasAnyAuthority("ROLE_ADMIN")
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) {
+
+        return httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .exceptionHandling(exception ->
+                        exception.accessDeniedHandler(accessDeniedHandler)
+                                .authenticationEntryPoint(authenticationEntryPoint))
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html"
+                                ).permitAll()
+                                .requestMatchers("/api/auth/**").permitAll()
+
+                                .requestMatchers(HttpMethod.GET, "/api/loans/me").hasAuthority("ROLE_MEMBER")
+                                .requestMatchers(HttpMethod.GET, "/api/members/me").hasAuthority("ROLE_MEMBER")
+                                .requestMatchers(HttpMethod.GET, "/api/reservations/me").hasAuthority("ROLE_MEMBER")
+                                .requestMatchers(HttpMethod.GET, "/api/fines/me").hasAuthority("ROLE_MEMBER")
+                                .requestMatchers(HttpMethod.POST, "/api/books/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LIBRARIAN")
+                                .requestMatchers(HttpMethod.PUT, "/api/books/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_LIBRARIAN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/books/**").hasAnyAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/loans/**").hasAnyAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/fines/**").hasAnyAuthority("ROLE_ADMIN")
                                 .requestMatchers("/api/members/**").hasAnyAuthority("ROLE_ADMIN")
@@ -54,18 +61,18 @@ public class SecurityConfig {
 
 
                                 .anyRequest().authenticated())
-              .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
 
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager manager(AuthenticationConfiguration configuration)throws Exception {
-     return    configuration.getAuthenticationManager();
+    public AuthenticationManager manager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 }

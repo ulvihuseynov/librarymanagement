@@ -24,4 +24,11 @@ public class BookResponse {
     private LocalDate publishedDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Integer pageSize;
+    private Integer pageNumber;
+    private Integer totalPageSize;
+    private Integer totalPageNumber;
+    private boolean isLast;
+
 }

@@ -27,21 +27,18 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ActivationService {
 
-    @Value("${member.activation.token.duration-seconds}")
-    private Long activationTokenS;
-
     private final MemberActivationTokenRepository memberActivationTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final TokenGenerator tokenGenerator;
+    @Value("${member.activation.token.duration-seconds}")
+    private Long activationTokenS;
 
+    public ActivationTokenResult createMemberActivationToken(Member member) {
 
-
-    public ActivationTokenResult createMemberActivationToken(Member member)  {
-
-        ActivationTokenResult activationTokenResult=new ActivationTokenResult();
-        MemberActivationToken memberActivationToken=new MemberActivationToken();
+        ActivationTokenResult activationTokenResult = new ActivationTokenResult();
+        MemberActivationToken memberActivationToken = new MemberActivationToken();
 
         String rawToken = tokenGenerator.generateToken();
         String hashToken = tokenGenerator.hashToken(rawToken);
@@ -63,41 +60,49 @@ public class ActivationService {
 
         String hashToken = tokenGenerator.hashToken(activationRequest.getToken());
 
-        MemberActivationToken memberActivationToken=memberActivationTokenRepository.findByHashTokenAndExpiresAtGreaterThan(hashToken,LocalDateTime.now())
-                .orElseThrow(()->new ResourceNotFoundException( "Activation token is invalid or expired"));
+        MemberActivationToken memberActivationToken = memberActivationTokenRepository.findByHashTokenAndExpiresAtGreaterThan(hashToken, LocalDateTime.now())
+                .orElseThrow(() -> new ResourceNotFoundException("Activation token is invalid or expired"));
 
-        if (memberActivationToken.getUsedAt()!=null){
+        if (memberActivationToken.getUsedAt() != null) {
             throw new BadRequestException("Activation token has already been used");
         }
 
-        LocalDateTime expiresAt = memberActivationToken.getExpiresAt();
-
-        if (expiresAt.isBefore(LocalDateTime.now())){
-            throw new BadRequestException("Token expiration date has expired. ");
-        }
 
         Member member = memberActivationToken.getMember();
 
-        if (member.getUser() !=null){
-           member.getUser().setEnabled(true);
-        }else {
+        if (member.getUser() != null && !member.getUser().isEnabled()) {
+            member.getUser().setEnabled(true);
+        } else if (member.getUser() != null) {
+            throw new BadRequestException("Account is already active");
+        } else {
+
+            if (activationRequest.getUsername() == null || activationRequest.getUsername().isBlank()) {
+                throw new BadRequestException("Username is required");
+            }
+
+            if (activationRequest.getPassword() == null || (activationRequest.getPassword().length() < 6)
+                    || activationRequest.getPassword().isBlank()) {
+                throw new BadRequestException("Password is required or  must be at least 6 characters");
+            }
+
+            String username = activationRequest.getUsername().trim();
+            boolean existsByUsername = userRepository.existsByUsername(username);
+            boolean existsByEmail = userRepository.existsByEmail(member.getEmail());
+
+            if (existsByUsername) {
+                throw new DuplicateResourceException("Username already exists " + username);
+            }
+
+            if (existsByEmail) {
+                throw new DuplicateResourceException("Email already exists " + member.getEmail());
+            }
 
             Role role = roleRepository.findByRoleName(AppRole.ROLE_MEMBER)
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found " + AppRole.ROLE_MEMBER));
+            User user = new User();
 
-            boolean existsByUsername = userRepository.existsByUsername(activationRequest.getUsername());
-            boolean existsByEmail = userRepository.existsByEmail(member.getEmail());
-            if (existsByUsername){
-                throw new DuplicateResourceException("Username already exists "+activationRequest.getUsername());
-            }
 
-            if (existsByEmail){
-                throw new DuplicateResourceException("Email already exists " +member.getEmail());
-            }
-
-            User user =new User();
-
-            user.setUsername(activationRequest.getUsername());
+            user.setUsername(username);
             user.setEnabled(true);
             user.setRoles(Set.of(role));
             user.setEmail(member.getEmail());
@@ -105,9 +110,9 @@ public class ActivationService {
 
             User savedUser = userRepository.save(user);
             member.setUser(savedUser);
-            memberActivationToken.setUsedAt(LocalDateTime.now());
         }
 
+        memberActivationToken.setUsedAt(LocalDateTime.now());
 
         return "Account activated successfully";
     }

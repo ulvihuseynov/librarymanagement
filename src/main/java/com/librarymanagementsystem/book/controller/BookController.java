@@ -5,6 +5,7 @@ import com.librarymanagementsystem.book.dto.BookResponse;
 import com.librarymanagementsystem.book.dto.BookUpdateRequest;
 import com.librarymanagementsystem.book.service.BookService;
 import com.librarymanagementsystem.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Books")
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
@@ -30,9 +32,12 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookList() {
+    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookList(@RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+                                                                       @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+                                                                       @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
+                                                                       @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
-        List<BookResponse> bookResponse = bookService.getBookList();
+        List<BookResponse> bookResponse = bookService.getBookList(pageSize,pageNumber,sortBy,sortDirection);
 
         return new ResponseEntity<>(ApiResponse.success("The books were delivered successfully.", bookResponse), HttpStatus.OK);
     }

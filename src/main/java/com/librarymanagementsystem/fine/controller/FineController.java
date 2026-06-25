@@ -3,6 +3,7 @@ package com.librarymanagementsystem.fine.controller;
 import com.librarymanagementsystem.common.response.ApiResponse;
 import com.librarymanagementsystem.fine.dto.FineResponse;
 import com.librarymanagementsystem.fine.service.FineService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
+@Tag(name = "Fine")
 @RestController
 @RequestMapping("/api/fines")
 @RequiredArgsConstructor

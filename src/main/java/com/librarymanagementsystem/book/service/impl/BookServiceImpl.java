@@ -12,6 +12,10 @@ import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +45,21 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> getBookList() {
+    public List<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection) {
 
-        List<Book> bookList = bookRepository.findByStatus(BookStatus.ACTIVE);
+
+        Sort sort=sortDirection.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        
+        Pageable pageRequest = PageRequest.of(pageSize, pageNumber, sort);
+       Page<Book> books= bookRepository.findByStatus(BookStatus.ACTIVE, pageRequest);
+
+
+        List<Book> bookList = books.getContent();
+
+
+        
         return bookList.stream().map(bookMapper::toResponse).toList();
     }
 

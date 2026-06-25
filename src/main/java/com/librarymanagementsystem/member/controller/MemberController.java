@@ -1,11 +1,11 @@
 package com.librarymanagementsystem.member.controller;
 
-import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.common.response.ApiResponse;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
 import com.librarymanagementsystem.member.dto.MemberResponse;
 import com.librarymanagementsystem.member.dto.MemberUpdateRequest;
 import com.librarymanagementsystem.member.service.MemberService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Member")
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor

@@ -11,7 +11,8 @@ public interface BookService {
 
     BookResponse createBook(@Valid BookCreateRequest bookCreateRequest);
 
-    List<BookResponse> getBookList();
+    List<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection);
+
 
     BookResponse getBookByID(Long id);
 
@@ -22,4 +23,5 @@ public interface BookService {
     List<BookResponse> getBookByTitle(String title);
 
     BookResponse getBookByIsbn(String isbn);
+
 }

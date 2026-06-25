@@ -64,7 +64,6 @@ public class EmailServiceImpl implements EmailService {
         If you did not create this account, you can ignore this email.
         """.formatted(verificationLink, expiresAt);
 
-        sendSimpleEmail(recipientEmail, subject, body);
 
         SimpleMailMessage message = sendSimpleEmail(recipientEmail, subject, body);
 

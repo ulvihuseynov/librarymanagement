@@ -3,6 +3,8 @@ package com.librarymanagementsystem.book.repository;
 import com.librarymanagementsystem.book.entity.Book;
 import com.librarymanagementsystem.book.entity.BookStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -25,7 +27,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("select b from Book b where b.bookId= :bookId")
     Optional<Book> findByIdForUpdate(@Param("bookId") Long bookId);
 
-    List<Book> findByStatus(BookStatus bookStatus);
+    Page<Book> findByStatus(BookStatus bookStatus, Pageable pageable);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from Book b where b.bookId= :bookId and b.status=:status")

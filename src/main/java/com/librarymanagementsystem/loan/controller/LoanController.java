@@ -4,6 +4,7 @@ import com.librarymanagementsystem.common.response.ApiResponse;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
 import com.librarymanagementsystem.loan.service.LoanService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
+@Tag(name = "Loan")
 @RestController
 @RequestMapping("/api/loans")
 @RequiredArgsConstructor
