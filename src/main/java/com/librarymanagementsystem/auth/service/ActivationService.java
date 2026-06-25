@@ -79,33 +79,35 @@ public class ActivationService {
         Member member = memberActivationToken.getMember();
 
         if (member.getUser() !=null){
-            throw new DuplicateResourceException("User already exists");
+           member.getUser().setEnabled(true);
+        }else {
+
+            Role role = roleRepository.findByRoleName(AppRole.ROLE_MEMBER)
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found " + AppRole.ROLE_MEMBER));
+
+            boolean existsByUsername = userRepository.existsByUsername(activationRequest.getUsername());
+            boolean existsByEmail = userRepository.existsByEmail(member.getEmail());
+            if (existsByUsername){
+                throw new DuplicateResourceException("Username already exists "+activationRequest.getUsername());
+            }
+
+            if (existsByEmail){
+                throw new DuplicateResourceException("Email already exists " +member.getEmail());
+            }
+
+            User user =new User();
+
+            user.setUsername(activationRequest.getUsername());
+            user.setEnabled(true);
+            user.setRoles(Set.of(role));
+            user.setEmail(member.getEmail());
+            user.setPassword(passwordEncoder.encode(activationRequest.getPassword()));
+
+            User savedUser = userRepository.save(user);
+            member.setUser(savedUser);
+            memberActivationToken.setUsedAt(LocalDateTime.now());
         }
 
-        Role role = roleRepository.findByRoleName(AppRole.ROLE_MEMBER)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found " + AppRole.ROLE_MEMBER));
-
-        boolean existsByUsername = userRepository.existsByUsername(activationRequest.getUsername());
-        boolean existsByEmail = userRepository.existsByEmail(member.getEmail());
-        if (existsByUsername){
-            throw new DuplicateResourceException("Username already exists "+activationRequest.getUsername());
-        }
-
-        if (existsByEmail){
-            throw new DuplicateResourceException("Email already exists " +member.getEmail());
-        }
-
-        User user =new User();
-
-        user.setUsername(activationRequest.getUsername());
-        user.setEnabled(true);
-        user.setRoles(Set.of(role));
-        user.setEmail(member.getEmail());
-        user.setPassword(passwordEncoder.encode(activationRequest.getPassword()));
-
-        User savedUser = userRepository.save(user);
-        member.setUser(savedUser);
-        memberActivationToken.setUsedAt(LocalDateTime.now());
 
         return "Account activated successfully";
     }

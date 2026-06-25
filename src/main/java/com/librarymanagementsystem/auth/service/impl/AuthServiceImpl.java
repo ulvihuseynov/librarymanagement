@@ -3,11 +3,13 @@ package com.librarymanagementsystem.auth.service.impl;
 import com.librarymanagementsystem.auth.dto.JwtResponse;
 import com.librarymanagementsystem.auth.dto.LoginRequest;
 import com.librarymanagementsystem.auth.dto.RegisterRequest;
+import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.auth.service.AuthService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.common.response.ApiResponse;
 import com.librarymanagementsystem.email.service.EmailService;
+import com.librarymanagementsystem.member.dto.ActivationTokenResult;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
@@ -41,6 +43,7 @@ public class AuthServiceImpl implements AuthService {
     private final MemberRepository memberRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final ActivationService activationService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
 
@@ -119,8 +122,17 @@ public class AuthServiceImpl implements AuthService {
         member.setLastName(registerRequest.getLastName());
         member.setPhoneNumber(registerRequest.getPhoneNumber());
 
-        memberRepository.save(member);
-        emailService.sendEmailVerificationEmail(member.getEmail(),baseUrl + "?token="+ user.getPassword(),user.getCreatedAt() );
+        Member savedMember = memberRepository.save(member);
+
+        ActivationTokenResult activationTokenResult = activationService.createMemberActivationToken(savedMember);
+
+        emailService.sendEmailVerificationEmail(
+                member.getEmail(),
+                baseUrl +
+                        "?token=" +
+                activationTokenResult.getRawToken(),
+                activationTokenResult.getExpiryDate()
+        );
         return ApiResponse.success("User and member profile successfully created ", null);
     }
 }
