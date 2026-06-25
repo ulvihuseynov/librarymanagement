@@ -43,6 +43,6 @@ public class User extends BaseEntity {
        this.username=username;
        this.email=email;
        this.password=password;
-       this.enabled=true;
+       this.enabled=false;
     }
 }

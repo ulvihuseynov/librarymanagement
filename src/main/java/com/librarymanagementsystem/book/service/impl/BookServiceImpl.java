@@ -80,11 +80,12 @@ public class BookServiceImpl implements BookService {
         return bookMapper.toResponse(bookRepository.save(bookFromDb));
     }
 
+    @Transactional
     @Override
     public String deleteBook(Long id) {
         Book book = bookRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + id));
-                ;
+                
         book.setStatus(BookStatus.ARCHIVED);
         bookRepository.save(book);
         return "Book successfully archived with ID " + id;

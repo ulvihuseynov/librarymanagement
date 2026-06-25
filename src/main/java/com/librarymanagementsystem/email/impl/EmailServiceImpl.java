@@ -17,27 +17,74 @@ public class EmailServiceImpl implements EmailService {
 
     @Value("${spring.mail.username}")
     private String senderEmail;
+
     @Override
-    public void sendActivationEmail(String recipientEmail, String activationLink, LocalDateTime expiresAt) {
+    public void sendAccountSetupEmail(String recipientEmail, String activationLink, LocalDateTime expiresAt) {
+
+
+        String subject = "Set up your Library Management account";
+
+        String body = """
+        Hello,
+
+        Your library membership account has been created.
+
+        Complete your account registration using the following link:
+
+        %s
+
+        This link expires at: %s
+
+        If you did not expect this email, you can ignore it.
+        """.formatted(activationLink, expiresAt);
+
+        SimpleMailMessage message = sendSimpleEmail(recipientEmail, subject, body);
+
+
+        javaMailSender.send(message);
+
+    }
+    @Override
+    public void sendEmailVerificationEmail(String recipientEmail, String verificationLink, LocalDateTime expiresAt) {
+
+
+        String subject = "Verify your Library Management email";
+
+        String body = """
+        Hello,
+
+        Your Library Management account has been created.
+
+        Verify your email address using the following link:
+
+        %s
+
+        This link expires at: %s
+
+        If you did not create this account, you can ignore this email.
+        """.formatted(verificationLink, expiresAt);
+
+        sendSimpleEmail(recipientEmail, subject, body);
+
+        SimpleMailMessage message = sendSimpleEmail(recipientEmail, subject, body);
+
+
+        javaMailSender.send(message);
+
+    }
+
+
+    private SimpleMailMessage sendSimpleEmail(String recipientEmail, String subject, String body) {
 
         SimpleMailMessage message=new SimpleMailMessage();
 
         message.setTo(recipientEmail);
         message.setFrom(senderEmail);
-        message.setSubject("Activate your Library Management account");
-        message.setText("Hello,\n" +
-                "\n" +
-                "Your library membership account has been created.\n" +
-                "\n" +
-                "Complete your account registration using the following link:\n" +
-                "\n" +
-                "ACTIVATION_LINK\n" + activationLink +
-                "\n" +
-                "This link expires at: EXPIRES_AT\n" + expiresAt +
-                "\n" +
-                "If you did not expect this email, you can ignore it.");
+        message.setSubject(subject);
+        message.setText(body);
 
-        javaMailSender.send(message);
-
+        return message;
     }
+
+
 }

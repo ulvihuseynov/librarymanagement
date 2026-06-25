@@ -50,7 +50,7 @@ public class MemberServiceImpl implements MemberService {
         Member savedMember = memberRepository.save(member);
         ActivationTokenResult activationTokenResult = activationService.createMemberActivationToken(savedMember);
 
-        emailService.sendActivationEmail(
+        emailService.sendAccountSetupEmail(
                 member.getEmail(),
                 baseUrl +
                         "?token="+

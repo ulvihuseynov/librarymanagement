@@ -7,6 +7,7 @@ import com.librarymanagementsystem.auth.service.AuthService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.email.service.EmailService;
 import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.entity.MemberStatus;
 import com.librarymanagementsystem.member.repository.MemberRepository;
@@ -18,6 +19,7 @@ import com.librarymanagementsystem.user.entity.User;
 import com.librarymanagementsystem.user.repository.RoleRepository;
 import com.librarymanagementsystem.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,9 +39,13 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final MemberRepository memberRepository;
+    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+
+    @Value("${app.activation.base-url}")
+    private String baseUrl;
 
     @Override
     public ApiResponse<Object> login(LoginRequest loginRequest) {
@@ -114,6 +120,7 @@ public class AuthServiceImpl implements AuthService {
         member.setPhoneNumber(registerRequest.getPhoneNumber());
 
         memberRepository.save(member);
+        emailService.sendEmailVerificationEmail(member.getEmail(),baseUrl + "?token="+ user.getPassword(),user.getCreatedAt() );
         return ApiResponse.success("User and member profile successfully created ", null);
     }
 }
