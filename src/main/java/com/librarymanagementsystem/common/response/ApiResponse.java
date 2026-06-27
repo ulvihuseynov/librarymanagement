@@ -17,7 +17,7 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private LocalDateTime timestamp;
-   private PaginationResponse paginationResponse;
+   private PaginationResponse<T> paginationResponse;
 
     public static <T> ApiResponse<T> success(String message, T data) {
         return new ApiResponse<>(true, message, data, LocalDateTime.now(),null);
@@ -31,7 +31,7 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false,message, data, LocalDateTime.now(),null);
     }
 
-    public static <T> ApiResponse<T> paginationResponse(String message ,T data,PaginationResponse paginationResponse) {
+    public static <T> ApiResponse<T> paginationResponse(String message ,T data,PaginationResponse<T> paginationResponse) {
         return new ApiResponse<>(false,message, data, LocalDateTime.now(),paginationResponse);
     }
 }

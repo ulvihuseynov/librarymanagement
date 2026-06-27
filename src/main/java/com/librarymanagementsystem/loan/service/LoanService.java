@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.loan.service;
 
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
 
@@ -8,7 +9,7 @@ import java.util.List;
 public interface LoanService {
     LoanResponse createLoan( LoanCreateRequest loanCreateRequest);
 
-    List<LoanResponse> getLoan();
+    PaginationResponse<LoanResponse> getLoan(Integer pageSize,Integer pageNumber,String sortBy,String sortDirection);
 
     LoanResponse getLoanById(Long loanId);
 

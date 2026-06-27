@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.member.service;
 
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
 import com.librarymanagementsystem.member.dto.MemberResponse;
 import com.librarymanagementsystem.member.dto.MemberUpdateRequest;
@@ -10,7 +11,7 @@ import java.util.List;
 public interface MemberService {
     MemberResponse createMember(@Valid MemberCreateRequest memberCreateRequest);
 
-    List<MemberResponse> getMemberList();
+    PaginationResponse<MemberResponse> getMemberList(Integer pageSize,Integer pageNumber,String sortBy,String sortDirection);
 
     MemberResponse getMemberById(Long id);
 

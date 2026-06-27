@@ -28,6 +28,5 @@ public class BookResponse {
     private LocalDateTime updatedAt;
 
 
-    private List<PaginationResponse> content;
 
 }

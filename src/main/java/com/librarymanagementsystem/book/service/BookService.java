@@ -3,6 +3,7 @@ package com.librarymanagementsystem.book.service;
 import com.librarymanagementsystem.book.dto.BookCreateRequest;
 import com.librarymanagementsystem.book.dto.BookResponse;
 import com.librarymanagementsystem.book.dto.BookUpdateRequest;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import jakarta.validation.Valid;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface BookService {
 
     BookResponse createBook(@Valid BookCreateRequest bookCreateRequest);
 
-    List<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection);
+    PaginationResponse<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection);
 
 
     BookResponse getBookByID(Long id);
@@ -20,7 +21,7 @@ public interface BookService {
 
     String deleteBook(Long id);
 
-    List<BookResponse> getBookByTitle(String title);
+    PaginationResponse<BookResponse> getBookByTitle(String title,Integer pageSize,Integer pageNumber,String sortBy,String sortDirection);
 
     BookResponse getBookByIsbn(String isbn);
 

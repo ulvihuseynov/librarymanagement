@@ -3,6 +3,7 @@ package com.librarymanagementsystem.member.service.impl;
 import com.librarymanagementsystem.auth.service.ActivationService;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.email.service.EmailService;
 import com.librarymanagementsystem.member.dto.ActivationTokenResult;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
@@ -16,6 +17,10 @@ import com.librarymanagementsystem.member.service.MemberService;
 import com.librarymanagementsystem.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -63,9 +68,29 @@ public class MemberServiceImpl implements MemberService {
 
 
     @Override
-    public List<MemberResponse> getMemberList() {
-        List<Member> memberList = memberRepository.findAll();
-        return memberList.stream().map(memberMapper::toResponse).toList();
+    public PaginationResponse<MemberResponse> getMemberList(Integer pageSize,Integer pageNumber,String sortBy,String sortDirection) {
+
+        PaginationResponse<MemberResponse> paginationResponse=new PaginationResponse<>();
+        Sort sort =sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Member> members= memberRepository.findAll(pageRequest);
+
+        List<Member> memberList = members.getContent();
+
+        List<MemberResponse> memberResponses = memberList.stream().map(memberMapper::toResponse).toList();
+
+        paginationResponse.setContent(memberResponses);
+
+        paginationResponse.setPageSize(members.getSize());
+        paginationResponse.setPageNumber(members.getNumber());
+        paginationResponse.setTotalPages(members.getTotalPages());
+        paginationResponse.setTotalElements(members.getTotalElements());
+        paginationResponse.setLast(members.isLast());
+
+        return paginationResponse;
     }
 
     @Override

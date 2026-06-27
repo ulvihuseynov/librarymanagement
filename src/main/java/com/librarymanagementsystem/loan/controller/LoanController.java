@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.loan.controller;
 
 import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.loan.dto.LoanCreateRequest;
 import com.librarymanagementsystem.loan.dto.LoanResponse;
 import com.librarymanagementsystem.loan.service.LoanService;
@@ -32,10 +33,13 @@ public class LoanController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<LoanResponse>>> getLoan() {
+    public ResponseEntity<ApiResponse<PaginationResponse<LoanResponse>>> getLoan(@RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+                                                                                 @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+                                                                                 @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
+                                                                                 @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
 
-        List<LoanResponse> loanResponse = loanService.getLoan();
+        PaginationResponse<LoanResponse> loanResponse = loanService.getLoan(pageSize,pageNumber,sortBy,sortDirection);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The loans were successfully delivered ", loanResponse));
     }

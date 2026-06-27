@@ -5,6 +5,7 @@ import com.librarymanagementsystem.book.entity.BookStatus;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.fine.entity.Fine;
 import com.librarymanagementsystem.fine.entity.FineStatus;
 import com.librarymanagementsystem.fine.repository.FineRepository;
@@ -23,6 +24,10 @@ import com.librarymanagementsystem.reservation.entity.Reservation;
 import com.librarymanagementsystem.reservation.entity.ReservationStatus;
 import com.librarymanagementsystem.reservation.repository.ReservationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,10 +103,29 @@ public class LoanServiceImpl implements LoanService {
 
 
     @Override
-    public List<LoanResponse> getLoan() {
+    public PaginationResponse<LoanResponse> getLoan(Integer pageSize,Integer pageNumber,String sortBy,String sortDirection) {
 
-        List<Loan> loanList = loanRepository.findAll();
-        return loanList.stream().map(loanMapper::toResponse).toList();
+        PaginationResponse<LoanResponse> paginationResponse=new PaginationResponse<>();
+
+        Sort sort=sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageRequest= PageRequest.of(pageNumber,pageSize,sort);
+
+        Page<Loan> loans = loanRepository.findAll(pageRequest);
+        List<Loan> loanList = loans.getContent();
+        List<LoanResponse> loanResponses = loanList.stream().map(loanMapper::toResponse).toList();
+
+        paginationResponse.setContent(loanResponses);
+
+        paginationResponse.setPageSize(loans.getSize());
+        paginationResponse.setPageNumber(loans.getNumber());
+        paginationResponse.setTotalPages(loans.getTotalPages());
+        paginationResponse.setTotalElements(loans.getTotalElements());
+        paginationResponse.setLast(loans.isLast());
+
+        return paginationResponse;
     }
 
     @Override

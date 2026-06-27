@@ -1,11 +1,12 @@
 package com.librarymanagementsystem.fine.service;
 
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.fine.dto.FineResponse;
 
 import java.util.List;
 
 public interface FineService {
-    List<FineResponse> getFineList();
+    PaginationResponse<FineResponse> getFineList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection);
 
     FineResponse getFineById(Long fineId);
 

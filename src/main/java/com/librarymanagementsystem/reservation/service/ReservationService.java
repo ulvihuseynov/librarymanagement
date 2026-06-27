@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.reservation.service;
 
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.reservation.dto.ReservationCreateRequest;
 import com.librarymanagementsystem.reservation.dto.ReservationResponse;
 import jakarta.validation.Valid;
@@ -9,7 +10,7 @@ import java.util.List;
 public interface ReservationService {
     ReservationResponse createReservation(@Valid ReservationCreateRequest reservationCreateRequest);
 
-    List<ReservationResponse> getReservationList();
+    PaginationResponse<ReservationResponse> getReservationList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection);
 
     ReservationResponse getReservationById(Long reservationId);
 

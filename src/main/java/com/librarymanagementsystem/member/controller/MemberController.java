@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.member.controller;
 
 import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.member.dto.MemberCreateRequest;
 import com.librarymanagementsystem.member.dto.MemberResponse;
 import com.librarymanagementsystem.member.dto.MemberUpdateRequest;
@@ -33,9 +34,12 @@ public class MemberController {
 
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<MemberResponse>>> getMemberList(){
+    public ResponseEntity<ApiResponse<PaginationResponse<MemberResponse>>> getMemberList(@Valid @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+                                                                         @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+                                                                         @RequestParam (name = "sortBy",defaultValue = "firstName") String sortBy,
+                                                                         @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection){
 
-        List<MemberResponse> memberResponse= memberService.getMemberList();
+        PaginationResponse<MemberResponse> memberResponse= memberService.getMemberList(pageSize,pageNumber,sortBy,sortDirection);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The members were delivered successfully.",memberResponse));
     }

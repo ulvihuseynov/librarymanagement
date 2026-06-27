@@ -33,12 +33,12 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookList(@RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+    public ResponseEntity<ApiResponse<PaginationResponse<BookResponse>>> getBookList(@Valid @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
                                                                        @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
                                                                        @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
                                                                        @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
-        List<BookResponse> bookResponse = bookService.getBookList(pageSize,pageNumber,sortBy,sortDirection);
+      PaginationResponse<BookResponse> bookResponse = bookService.getBookList(pageSize,pageNumber,sortBy,sortDirection);
 
         return new ResponseEntity<>(ApiResponse.success("The books were delivered successfully.", bookResponse), HttpStatus.OK);
     }
@@ -54,9 +54,13 @@ public class BookController {
 
 
     @GetMapping("/search/title")
-    public ResponseEntity<ApiResponse<List<BookResponse>>> getBookByTitle(@RequestParam String title) {
+    public ResponseEntity<ApiResponse<PaginationResponse<BookResponse>>> getBookByTitle(@Valid @RequestParam String title,
+                                                                          @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+                                                                          @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+                                                                          @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
+                                                                          @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
-        List<BookResponse> bookResponse = bookService.getBookByTitle(title);
+       PaginationResponse<BookResponse> bookResponse = bookService.getBookByTitle(title,pageSize,pageNumber,sortBy,sortDirection);
 
         return new ResponseEntity<>(ApiResponse.success("The books were delivered successfully.", bookResponse), HttpStatus.OK);
     }

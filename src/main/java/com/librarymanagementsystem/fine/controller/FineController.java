@@ -1,9 +1,11 @@
 package com.librarymanagementsystem.fine.controller;
 
 import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.fine.dto.FineResponse;
 import com.librarymanagementsystem.fine.service.FineService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +24,12 @@ public class FineController {
 
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<FineResponse>>> getFineList(){
+    public ResponseEntity<ApiResponse<PaginationResponse<FineResponse>>> getFineList(@Valid  @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+                                                                                                   @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+                                                                                                   @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
+                                                                                                   @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection){
 
-        List<FineResponse> fineResponse= fineService.getFineList();
+        PaginationResponse<FineResponse> fineResponse= fineService.getFineList(pageSize,pageNumber,sortBy,sortDirection);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The fines were successfully delivered",fineResponse));
     }

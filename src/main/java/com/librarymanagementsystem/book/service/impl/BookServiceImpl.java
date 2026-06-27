@@ -46,23 +46,32 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection) {
+    public PaginationResponse<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection) {
 
 
-        Sort sort = sortDirection.equalsIgnoreCase("desc")
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        PaginationResponse<BookResponse> paginationResponse=new PaginationResponse<>();
 
-        Pageable pageRequest = PageRequest.of(pageSize, pageNumber, sort);
+        Sort sort = sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+
         Page<Book> books = bookRepository.findByStatus(BookStatus.ACTIVE, pageRequest);
-
-
 
         List<Book> bookList = books.getContent();
 
+        List<BookResponse> bookResponses = bookList.stream().map(bookMapper::toResponse).toList();
 
+        paginationResponse.setContent(bookResponses);
 
-        return bookList.stream().map(bookMapper::toResponse).toList();
+        paginationResponse.setPageSize(books.getSize());
+        paginationResponse.setPageNumber(books.getNumber());
+        paginationResponse.setTotalPages(books.getTotalPages());
+        paginationResponse.setTotalElements(books.getTotalElements());
+        paginationResponse.setLast(books.isLast());
+
+        return paginationResponse;
     }
 
     @Override
@@ -110,9 +119,32 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public List<BookResponse> getBookByTitle(String title) {
-        List<Book> bookList = bookRepository.findByTitleContainingIgnoreCaseAndStatus(title, BookStatus.ACTIVE);
-        return bookList.stream().map(bookMapper::toResponse).toList();
+    public PaginationResponse<BookResponse> getBookByTitle(String title,Integer pageSize,Integer pageNumber,String sortBy,String sortDirection) {
+
+        PaginationResponse<BookResponse> paginationResponse=new PaginationResponse<>();
+
+        Sort sort = sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+
+
+        Page<Book> books = bookRepository.findByTitleContainingIgnoreCaseAndStatus(title, BookStatus.ACTIVE,pageRequest);
+
+        List<Book> bookList = books.getContent();
+
+        List<BookResponse> bookResponses = bookList.stream().map(bookMapper::toResponse).toList();
+
+        paginationResponse.setContent(bookResponses);
+
+        paginationResponse.setPageSize(books.getSize());
+        paginationResponse.setPageNumber(books.getNumber());
+        paginationResponse.setTotalPages(books.getTotalPages());
+        paginationResponse.setTotalElements(books.getTotalElements());
+        paginationResponse.setLast(books.isLast());
+
+        return paginationResponse;
     }
 
     @Override

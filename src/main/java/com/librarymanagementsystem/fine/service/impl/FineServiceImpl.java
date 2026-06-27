@@ -1,8 +1,10 @@
 package com.librarymanagementsystem.fine.service.impl;
 
 
+import com.librarymanagementsystem.book.dto.BookResponse;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.fine.dto.FineResponse;
 import com.librarymanagementsystem.fine.entity.Fine;
 import com.librarymanagementsystem.fine.entity.FineStatus;
@@ -14,6 +16,10 @@ import com.librarymanagementsystem.member.entity.Member;
 import com.librarymanagementsystem.member.repository.MemberRepository;
 import com.librarymanagementsystem.member.service.MemberAccessService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,9 +36,29 @@ public class FineServiceImpl implements FineService {
     private final MemberAccessService memberAccessService;
 
     @Override
-    public List<FineResponse> getFineList() {
-        List<Fine> fineList = fineRepository.findAll();
-        return fineList.stream().map(fineMapper::toResponse).toList();
+    public PaginationResponse<FineResponse> getFineList(Integer pageSize,Integer pageNumber,String sortBy,String sortDirection) {
+
+
+        PaginationResponse<FineResponse> paginationResponse=new PaginationResponse<>();
+
+        Sort sort = sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Fine> fines = fineRepository.findAll(pageRequest);
+        List<Fine> fineList = fines.getContent();
+        List<FineResponse> fineResponses = fineList.stream().map(fineMapper::toResponse).toList();
+        paginationResponse.setContent(fineResponses);
+
+        paginationResponse.setPageSize(fines.getSize());
+        paginationResponse.setPageNumber(fines.getNumber());
+        paginationResponse.setTotalPages(fines.getTotalPages());
+        paginationResponse.setTotalElements(fines.getTotalElements());
+        paginationResponse.setLast(fines.isLast());
+
+        return paginationResponse;
     }
 
     @Override

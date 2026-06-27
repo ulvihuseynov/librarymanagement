@@ -5,6 +5,7 @@ import com.librarymanagementsystem.book.entity.BookStatus;
 import com.librarymanagementsystem.book.repository.BookRepository;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.fine.entity.FineStatus;
 import com.librarymanagementsystem.fine.repository.FineRepository;
 import com.librarymanagementsystem.loan.entity.LoanStatus;
@@ -21,6 +22,10 @@ import com.librarymanagementsystem.reservation.mapper.ReservationMapper;
 import com.librarymanagementsystem.reservation.repository.ReservationRepository;
 import com.librarymanagementsystem.reservation.service.ReservationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,10 +77,27 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     @Override
-    public List<ReservationResponse> getReservationList() {
+    public PaginationResponse<ReservationResponse> getReservationList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection) {
 
-        List<Reservation> reservationList = reservationRepository.findAll();
-        return reservationList.stream().map(reservationMapper::toResponse).toList();
+        PaginationResponse<ReservationResponse> paginationResponse = new PaginationResponse<>();
+
+        Sort sort = sortDirection.equalsIgnoreCase("asc")
+                ? Sort.by(sortBy).ascending()
+                : Sort.by(sortBy).descending();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize, sort);
+        Page<Reservation> reservations = reservationRepository.findAll(pageRequest);
+        List<Reservation> reservationList = reservations.getContent();
+        List<ReservationResponse> reservationResponses = reservationList.stream().map(reservationMapper::toResponse).toList();
+        paginationResponse.setContent(reservationResponses);
+
+        paginationResponse.setPageSize(reservations.getSize());
+        paginationResponse.setPageNumber(reservations.getNumber());
+        paginationResponse.setTotalPages(reservations.getTotalPages());
+        paginationResponse.setTotalElements(reservations.getTotalElements());
+        paginationResponse.setLast(reservations.isLast());
+
+        return paginationResponse;
     }
 
     @Override
@@ -107,7 +129,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public List<ReservationResponse> getReservationPending() {
 
-        List<Reservation> reservationList = reservationRepository.findByStatusAndExpiryDateAfter(ReservationStatus.PENDING,LocalDate.now());
+        List<Reservation> reservationList = reservationRepository.findByStatusAndExpiryDateAfter(ReservationStatus.PENDING, LocalDate.now());
         return reservationList.stream().map(reservationMapper::toResponse).toList();
 
     }
@@ -173,7 +195,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     private void existsReservationValidation(Long memberId, Long bookId) {
 
-        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatusAndExpiryDateAfter(memberId, bookId, ReservationStatus.PENDING,LocalDate.now());
+        boolean existsReservation = reservationRepository.existsByMemberMemberIdAndBookBookIdAndStatusAndExpiryDateAfter(memberId, bookId, ReservationStatus.PENDING, LocalDate.now());
 
         if (existsReservation) {
             throw new BadRequestException("Member already has an active reservation for this book.");
@@ -193,12 +215,14 @@ public class ReservationServiceImpl implements ReservationService {
             throw new BadRequestException("Member is not active and cannot reserve books");
         }
     }
+
     private void isActiveBookValidation(BookStatus status) {
 
         if (status != BookStatus.ACTIVE) {
             throw new BadRequestException("Book is not active");
         }
     }
+
     private Reservation getReservation(Long reservationId) {
 
         return reservationRepository.findById(reservationId)

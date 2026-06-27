@@ -1,6 +1,7 @@
 package com.librarymanagementsystem.reservation.controller;
 
 import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import com.librarymanagementsystem.reservation.dto.ReservationCreateRequest;
 import com.librarymanagementsystem.reservation.dto.ReservationResponse;
 import com.librarymanagementsystem.reservation.service.ReservationService;
@@ -32,9 +33,12 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ReservationResponse>>> getReservationList() {
+    public ResponseEntity<ApiResponse<PaginationResponse<ReservationResponse>>> getReservationList(@Valid   @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
+                                                                                        @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+                                                                                        @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
+                                                                                        @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
-        List<ReservationResponse> reservationResponse = reservationService.getReservationList();
+        PaginationResponse<ReservationResponse> reservationResponse = reservationService.getReservationList(pageSize,pageNumber,sortBy,sortDirection);
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success("The reservations were successfully delivered ", reservationResponse));
     }

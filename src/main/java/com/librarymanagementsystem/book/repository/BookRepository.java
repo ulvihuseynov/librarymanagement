@@ -19,7 +19,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     boolean existsByIsbn(String isbn);
 
-    List<Book> findByTitleContainingIgnoreCaseAndStatus(String title, BookStatus bookStatus);
+    Page<Book> findByTitleContainingIgnoreCaseAndStatus(String title, BookStatus bookStatus,Pageable pageRequest);
 
     Optional<Book> findByIsbnAndStatus(String isbn, BookStatus bookStatus);
 
