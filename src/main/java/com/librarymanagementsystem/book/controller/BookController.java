@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +34,8 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginationResponse<BookResponse>>> getBookList(@Valid @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
-                                                                       @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+    public ResponseEntity<ApiResponse<PaginationResponse<BookResponse>>> getBookList(@Validated @RequestParam (name = "pageSize",defaultValue = "10") Integer pageSize,
+                                                                       @RequestParam (name = "pageNumber",defaultValue = "0") Integer pageNumber,
                                                                        @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
                                                                        @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
@@ -54,9 +55,9 @@ public class BookController {
 
 
     @GetMapping("/search/title")
-    public ResponseEntity<ApiResponse<PaginationResponse<BookResponse>>> getBookByTitle(@Valid @RequestParam String title,
-                                                                          @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
-                                                                          @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+    public ResponseEntity<ApiResponse<PaginationResponse<BookResponse>>> getBookByTitle(@Validated @RequestParam String title,
+                                                                          @RequestParam (name = "pageSize",defaultValue = "10") Integer pageSize,
+                                                                          @RequestParam (name = "pageNumber",defaultValue = "0") Integer pageNumber,
                                                                           @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
                                                                           @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 

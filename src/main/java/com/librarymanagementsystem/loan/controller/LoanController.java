@@ -33,9 +33,9 @@ public class LoanController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginationResponse<LoanResponse>>> getLoan(@RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
-                                                                                 @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
-                                                                                 @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
+    public ResponseEntity<ApiResponse<PaginationResponse<LoanResponse>>> getLoan( @RequestParam (name = "pageSize",defaultValue = "10") Integer pageSize,
+                                                                                 @RequestParam (name = "pageNumber",defaultValue = "0") Integer pageNumber,
+                                                                                 @RequestParam (name = "sortBy",defaultValue = "borrowDate") String sortBy,
                                                                                  @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
 
 

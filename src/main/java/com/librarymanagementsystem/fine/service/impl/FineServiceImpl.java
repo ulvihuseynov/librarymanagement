@@ -1,7 +1,6 @@
 package com.librarymanagementsystem.fine.service.impl;
 
 
-import com.librarymanagementsystem.book.dto.BookResponse;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
 import com.librarymanagementsystem.common.response.PaginationResponse;
@@ -36,10 +35,10 @@ public class FineServiceImpl implements FineService {
     private final MemberAccessService memberAccessService;
 
     @Override
-    public PaginationResponse<FineResponse> getFineList(Integer pageSize,Integer pageNumber,String sortBy,String sortDirection) {
+    public PaginationResponse<FineResponse> getFineList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection) {
 
 
-        PaginationResponse<FineResponse> paginationResponse=new PaginationResponse<>();
+        PaginationResponse<FineResponse> paginationResponse = new PaginationResponse<>();
 
         Sort sort = sortDirection.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -89,9 +88,9 @@ public class FineServiceImpl implements FineService {
     public FineResponse payFine(Long fineId) {
 
         Fine fineFromDb = getFine(fineId);
-if (fineFromDb.getLoan().getStatus()!= LoanStatus.RETURNED){
-    throw new BadRequestException("Fine can be paid only after book is returned");
-}
+        if (fineFromDb.getLoan().getStatus() != LoanStatus.RETURNED) {
+            throw new BadRequestException("Fine can be paid only after book is returned");
+        }
         if (fineFromDb.getStatus() == FineStatus.PAID) {
             throw new BadRequestException("Fine already paid");
         }

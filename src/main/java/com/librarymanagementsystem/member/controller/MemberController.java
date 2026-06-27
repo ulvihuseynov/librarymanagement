@@ -34,8 +34,8 @@ public class MemberController {
 
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginationResponse<MemberResponse>>> getMemberList(@Valid @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
-                                                                         @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
+    public ResponseEntity<ApiResponse<PaginationResponse<MemberResponse>>> getMemberList( @RequestParam (name = "pageSize",defaultValue = "10") Integer pageSize,
+                                                                         @RequestParam (name = "pageNumber",defaultValue = "0") Integer pageNumber,
                                                                          @RequestParam (name = "sortBy",defaultValue = "firstName") String sortBy,
                                                                          @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection){
 

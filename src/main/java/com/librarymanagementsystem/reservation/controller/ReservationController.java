@@ -33,10 +33,10 @@ public class ReservationController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginationResponse<ReservationResponse>>> getReservationList(@Valid   @RequestParam (name = "pageSize",defaultValue = "0") Integer pageSize,
-                                                                                        @RequestParam (name = "pageNumber",defaultValue = "1") Integer pageNumber,
-                                                                                        @RequestParam (name = "sortBy",defaultValue = "title") String sortBy,
-                                                                                        @RequestParam (name = "sortDirection",defaultValue = "asc") String sortDirection) {
+    public ResponseEntity<ApiResponse<PaginationResponse<ReservationResponse>>> getReservationList( @RequestParam (name = "pageSize",defaultValue = "10") Integer pageSize,
+                                                                                        @RequestParam (name = "pageNumber",defaultValue = "0") Integer pageNumber,
+                                                                                        @RequestParam (name = "sortBy",defaultValue = "reservationDate") String sortBy,
+                                                                                        @RequestParam (name = "sortDirection",defaultValue = "desc") String sortDirection) {
 
         PaginationResponse<ReservationResponse> reservationResponse = reservationService.getReservationList(pageSize,pageNumber,sortBy,sortDirection);
 
