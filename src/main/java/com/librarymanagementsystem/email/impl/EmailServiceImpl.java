@@ -44,33 +44,7 @@ public class EmailServiceImpl implements EmailService {
         javaMailSender.send(message);
 
     }
-    @Override
-    public void sendEmailVerificationEmail(String recipientEmail, String verificationLink, LocalDateTime expiresAt) {
 
-
-        String subject = "Verify your Library Management email";
-
-        String body = """
-        Hello,
-
-        Your Library Management account has been created.
-
-        Verify your email address using the following link:
-
-        %s
-
-        This link expires at: %s
-
-        If you did not create this account, you can ignore this email.
-        """.formatted(verificationLink, expiresAt);
-
-
-        SimpleMailMessage message = sendSimpleEmail(recipientEmail, subject, body);
-
-
-        javaMailSender.send(message);
-
-    }
 
 
     private SimpleMailMessage sendSimpleEmail(String recipientEmail, String subject, String body) {

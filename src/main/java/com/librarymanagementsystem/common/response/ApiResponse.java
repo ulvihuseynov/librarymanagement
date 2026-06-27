@@ -17,17 +17,21 @@ public class ApiResponse<T> {
     private String message;
     private T data;
     private LocalDateTime timestamp;
-
+   private PaginationResponse paginationResponse;
 
     public static <T> ApiResponse<T> success(String message, T data) {
-        return new ApiResponse<>(true, message, data, LocalDateTime.now());
+        return new ApiResponse<>(true, message, data, LocalDateTime.now(),null);
     }
 
     public static <T> ApiResponse<T> error(String message) {
-        return new ApiResponse<>(false, message, null, LocalDateTime.now());
+        return new ApiResponse<>(false, message, null, LocalDateTime.now(),null);
     }
 
     public static <T> ApiResponse<T> validateError(String message ,T data) {
-        return new ApiResponse<>(false,message, data, LocalDateTime.now());
+        return new ApiResponse<>(false,message, data, LocalDateTime.now(),null);
+    }
+
+    public static <T> ApiResponse<T> paginationResponse(String message ,T data,PaginationResponse paginationResponse) {
+        return new ApiResponse<>(false,message, data, LocalDateTime.now(),paginationResponse);
     }
 }

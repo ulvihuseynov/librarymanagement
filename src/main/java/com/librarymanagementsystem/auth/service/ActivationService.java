@@ -70,27 +70,15 @@ public class ActivationService {
 
         Member member = memberActivationToken.getMember();
 
-        if (member.getUser() != null && !member.getUser().isEnabled()) {
-            member.getUser().setEnabled(true);
-        } else if (member.getUser() != null) {
-            throw new BadRequestException("Account is already active");
-        } else {
+        if (member.getUser() != null) {
+           throw new BadRequestException("User already exists");
+        }
 
-            if (activationRequest.getUsername() == null || activationRequest.getUsername().isBlank()) {
-                throw new BadRequestException("Username is required");
-            }
-
-            if (activationRequest.getPassword() == null || (activationRequest.getPassword().length() < 6)
-                    || activationRequest.getPassword().isBlank()) {
-                throw new BadRequestException("Password is required or  must be at least 6 characters");
-            }
-
-            String username = activationRequest.getUsername().trim();
-            boolean existsByUsername = userRepository.existsByUsername(username);
+            boolean existsByUsername = userRepository.existsByUsername( activationRequest.getUsername());
             boolean existsByEmail = userRepository.existsByEmail(member.getEmail());
 
             if (existsByUsername) {
-                throw new DuplicateResourceException("Username already exists " + username);
+                throw new DuplicateResourceException("Username already exists " + activationRequest.getUsername());
             }
 
             if (existsByEmail) {
@@ -102,7 +90,7 @@ public class ActivationService {
             User user = new User();
 
 
-            user.setUsername(username);
+            user.setUsername(activationRequest.getUsername());
             user.setEnabled(true);
             user.setRoles(Set.of(role));
             user.setEmail(member.getEmail());
@@ -110,7 +98,6 @@ public class ActivationService {
 
             User savedUser = userRepository.save(user);
             member.setUser(savedUser);
-        }
 
         memberActivationToken.setUsedAt(LocalDateTime.now());
 

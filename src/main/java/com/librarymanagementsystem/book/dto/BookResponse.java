@@ -1,5 +1,6 @@
 package com.librarymanagementsystem.book.dto;
 
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,10 +27,7 @@ public class BookResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    private Integer pageSize;
-    private Integer pageNumber;
-    private Integer totalPageSize;
-    private Integer totalPageNumber;
-    private boolean isLast;
+
+    private List<PaginationResponse> content;
 
 }

@@ -10,8 +10,6 @@ public interface EmailService {
             LocalDateTime expiresAt
     );
 
-     void sendEmailVerificationEmail(String recipientEmail,
-                                     String verificationLink,
-                                     LocalDateTime expiresAt);
+
 
 }

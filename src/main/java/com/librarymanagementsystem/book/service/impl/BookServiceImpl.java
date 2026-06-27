@@ -11,6 +11,7 @@ import com.librarymanagementsystem.book.service.BookService;
 import com.librarymanagementsystem.common.exception.BadRequestException;
 import com.librarymanagementsystem.common.exception.DuplicateResourceException;
 import com.librarymanagementsystem.common.exception.ResourceNotFoundException;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,18 +49,19 @@ public class BookServiceImpl implements BookService {
     public List<BookResponse> getBookList(Integer pageSize, Integer pageNumber, String sortBy, String sortDirection) {
 
 
-        Sort sort=sortDirection.equalsIgnoreCase("desc")
+        Sort sort = sortDirection.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
-        
+
         Pageable pageRequest = PageRequest.of(pageSize, pageNumber, sort);
-       Page<Book> books= bookRepository.findByStatus(BookStatus.ACTIVE, pageRequest);
+        Page<Book> books = bookRepository.findByStatus(BookStatus.ACTIVE, pageRequest);
+
 
 
         List<Book> bookList = books.getContent();
 
 
-        
+
         return bookList.stream().map(bookMapper::toResponse).toList();
     }
 
@@ -75,7 +77,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public BookResponse updateBook(BookUpdateRequest bookUpdateRequest, Long id) {
 
-        Book bookFromDb = bookRepository.findByIdForUpdateAndStatus(id,BookStatus.ACTIVE)
+        Book bookFromDb = bookRepository.findByIdForUpdateAndStatus(id, BookStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + id));
 
 
@@ -101,7 +103,7 @@ public class BookServiceImpl implements BookService {
     public String deleteBook(Long id) {
         Book book = bookRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with ID " + id));
-                
+
         book.setStatus(BookStatus.ARCHIVED);
         bookRepository.save(book);
         return "Book successfully archived with ID " + id;
@@ -109,14 +111,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookResponse> getBookByTitle(String title) {
-        List<Book> bookList = bookRepository.findByTitleContainingIgnoreCaseAndStatus(title,BookStatus.ACTIVE);
+        List<Book> bookList = bookRepository.findByTitleContainingIgnoreCaseAndStatus(title, BookStatus.ACTIVE);
         return bookList.stream().map(bookMapper::toResponse).toList();
     }
 
     @Override
     public BookResponse getBookByIsbn(String isbn) {
 
-        Book book = bookRepository.findByIsbnAndStatus(isbn,BookStatus.ACTIVE)
+        Book book = bookRepository.findByIsbnAndStatus(isbn, BookStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("Book not found with isbn " + isbn));
 
         return bookMapper.toResponse(book);

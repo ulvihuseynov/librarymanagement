@@ -5,6 +5,7 @@ import com.librarymanagementsystem.book.dto.BookResponse;
 import com.librarymanagementsystem.book.dto.BookUpdateRequest;
 import com.librarymanagementsystem.book.service.BookService;
 import com.librarymanagementsystem.common.response.ApiResponse;
+import com.librarymanagementsystem.common.response.PaginationResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

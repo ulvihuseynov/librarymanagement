@@ -16,8 +16,11 @@ public class ActivationRequest {
     @NotBlank(message = "Token is required")
     private String token;
 
+
+    @NotBlank(message = "Username is required")
     private String username;
 
     @Size(min = 6,message = "Password must be at least 6 characters")
+    @NotBlank(message = "Password is required")
     private String password;
 }
